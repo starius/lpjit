@@ -29,6 +29,13 @@ int lpjit_gc(lua_State* L) {
 // 1. Matcher object
 int lpjit_pushMatcher(lua_State* L) {
     Pattern* pattern = luaL_checkudata(L, 1, PATTERN_T);
+    if (!pattern->code) {
+        // Pattern is not compiled, call match with ''
+        lua_getfield(L, 1, "match");
+        lua_pushvalue(L, 1);
+        lua_pushliteral(L, "");
+        lua_call(L, 2, 0);
+    }
     //
     Matcher* matcher = lua_newuserdata(L, sizeof(Matcher));
     int matcher_index = lua_gettop(L);
