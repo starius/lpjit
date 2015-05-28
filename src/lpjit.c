@@ -38,6 +38,7 @@ int lpjit_pushMatcher(lua_State* L) {
     //
     matcher->buffer = 0;
     matcher->impl = 0;
+    matcher->d = 0;
     if (luaL_newmetatable(L, "lpjit_Matcher")) {
         lua_pushcfunction(L, lpjit_gc);
         lua_setfield(L, -2, "__gc");
