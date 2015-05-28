@@ -30,3 +30,5 @@
 
 # Debug files
 *.dSYM/
+
+*_posix64.c
