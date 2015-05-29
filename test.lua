@@ -6,3 +6,4 @@ local pattern = lpeg.P 'abc'
 --lpeg.pcode(pattern)
 
 local pattern2 = lpjit.compile(pattern)
+pattern2:match('abc')
