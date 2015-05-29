@@ -64,7 +64,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | push tmp2
         | push tmp3
         | push rax // Integer return values
-        | mov m_state, rArg1
+        | mov m_state, rArg2
         | mov sbegin, mstate->subject_begin
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
