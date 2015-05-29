@@ -43,9 +43,9 @@ typedef struct IC_Reg {
 
 static void lpjit_asmDefines(CompilerState* Dst) {
     // only X64 Linux
-    |.define subject_begin, rbx
-    |.define subject_current, r12
-    |.define subject_end, r13
+    |.define sbegin, rbx
+    |.define scurrent, r12
+    |.define send, r13
     |.define m_state, r14
     |.define tmp1, rbx
     |.define tmp2, rcx
@@ -56,49 +56,49 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.type mstate, MatchState, m_state
     //
     |.macro prologue
-        | push subject_begin
-        | push subject_current
-        | push subject_end
+        | push sbegin
+        | push scurrent
+        | push send
         | push m_state
         | push tmp1
         | push tmp2
         | push tmp3
         | push rax // Integer return values
         | mov m_state, rArg1
-        | lea subject_begin, [mstate->subject_begin]
-        | lea subject_current, [mstate->subject_current]
-        | lea subject_end, [mstate->subject_end]
+        | mov sbegin, mstate->subject_begin
+        | mov scurrent, mstate->subject_current
+        | mov send, mstate->subject_end
     |.endmacro
     //
     |.macro epilogue
         // result
-        | mov [mstate->subject_current], subject_current
+        | mov mstate->subject_current, scurrent
         // restore registers
         | pop rax
         | pop tmp3
         | pop tmp2
         | pop tmp1
         | pop m_state
-        | pop subject_end
-        | pop subject_current
-        | pop subject_begin
+        | pop send
+        | pop scurrent
+        | pop sbegin
         | ret
     |.endmacro
 }
 
 static void IEnd_c(CompilerState* Dst) {
     // TODO
-    //| epilogue
+    | epilogue
 }
 
 static void putFail(CompilerState* Dst) {
     // TODO
-    | mov subject_current, 0
-    //| epilogue
+    | mov scurrent, 0
+    | epilogue
 }
 
 static void isSubjectOkEnd(CompilerState* Dst) {
-    | cmp subject_current, subject_end
+    | cmp scurrent, send
 }
 
 static void IAny_c(CompilerState* Dst) {
@@ -106,11 +106,11 @@ static void IAny_c(CompilerState* Dst) {
     | jl >1
     putFail(Dst);
     |1:
-    | inc subject_current
+    | inc scurrent
 }
 
 static void cmpCurrentByte(CompilerState* Dst) {
-    | cmp byte [subject_current], Dst->instruction->i.aux
+    | cmp byte [scurrent], Dst->instruction->i.aux
 }
 
 static void IChar_c(CompilerState* Dst) {
@@ -121,7 +121,7 @@ static void IChar_c(CompilerState* Dst) {
     |1:
     putFail(Dst);
     |2:
-    | inc subject_current
+    | inc scurrent
 }
 
 static const IC_Reg INSTRUCTIONS[] = {
@@ -198,7 +198,7 @@ void lpjit_compile(lua_State* L,
     // TODO
     |.code
     |->lpjit_main:
-    //| prologue
+    | prologue
     lpjit_compileAll(Dst);
     //
     dasm_link(Dst, &matcher->buffer_size);
