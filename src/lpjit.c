@@ -23,6 +23,11 @@ int lpjit_gc(lua_State* L) {
     return 0;
 }
 
+static const luaL_Reg matcher_methods[] = {
+    {"match", lua_lpjit_match},
+    {NULL, NULL}
+};
+
 // Arguments:
 // 1. lpeg Pattern object
 // Results:
@@ -49,6 +54,9 @@ int lpjit_pushMatcher(lua_State* L) {
     if (luaL_newmetatable(L, "lpjit_Matcher")) {
         lua_pushcfunction(L, lpjit_gc);
         lua_setfield(L, -2, "__gc");
+        lua_newtable(L); // __index
+        compat_setfuncs(L, matcher_methods);
+        lua_setfield(L, -2, "__index");
     }
     lua_setmetatable(L, matcher_index);
     // magic starts here
@@ -67,6 +75,40 @@ void lpjit_match(lua_State *L, const Matcher* matcher,
     luaL_argcheck(L, matcher->impl != 0, 1, "Bad matcher");
     matcher->impl(L, mstate);
     // result is in mstate->subject_current
+}
+
+// Arguments:
+// 1. lpjit Matcher
+// 2. string (subject)
+// 3. init position (optional)
+// Results:
+// TODO
+int lua_lpjit_match(lua_State* L) {
+    Matcher* matcher = lpjit_checkMatcher(L, 1);
+    size_t l;
+    const char *s = luaL_checklstring(L, 2, &l);
+    size_t i = lpeg_initposition(L, l);
+    int ptop = lua_gettop(L);
+    /* initialize subscache */
+    lua_pushnil(L);
+    Capture capture[INITCAPSIZE];
+    /* initialize caplistidx */
+    lua_pushlightuserdata(L, capture);
+    /* initialize penvidx */
+    lua_getfenv(L, 1);
+    MatchState mstate;
+    mstate.subject_begin = s;
+    mstate.subject_current = s + i;
+    mstate.subject_end = s + l;
+    mstate.L = L;
+    mstate.capture = capture;
+    lpjit_match(L, matcher, &mstate);
+    const char* r = mstate.subject_current;
+    if (r == NULL) {
+        lua_pushnil(L);
+        return 1;
+    }
+    return lpeg_getcaptures(L, s, r, ptop);
 }
 
 static const luaL_Reg lpjit_functions[] = {
