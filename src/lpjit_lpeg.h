@@ -10,4 +10,18 @@
 #include "lptypes.h"
 #include "lpvm.h"
 
+/*
+** Get the initial position for the match, interpreting negative
+** values from the end of the subject
+*/
+size_t initposition(lua_State *L, size_t len);
+
+int lpeg_sizei(const Instruction *i);
+
+int lpeg_runtimecap(CapState *cs, Capture *close,
+        const char *s, int *rem);
+int lpeg_getcaptures(lua_State *L, const char *s,
+        const char *r, int ptop);
+int lpeg_finddyncap(Capture *cap, Capture *last);
+
 #endif

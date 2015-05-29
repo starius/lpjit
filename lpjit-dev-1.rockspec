@@ -25,6 +25,7 @@ build = {
                 "src/lpjit_compile_posix64.c",
                 "src/lpjit_compiler.c",
                 "src/lpjit_memory.c",
+                "src/lpjit_lpeg.c",
             },
             incdirs = {"$(LPEG_INCDIR)", '.'},
             defines = {"X64"},

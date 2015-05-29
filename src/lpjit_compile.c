@@ -164,24 +164,6 @@ void lpjit_compileInstruction(CompilerState* Dst) {
     luaL_error(Dst->L, "Bad opcode %d", (int)opcode);
 }
 
-// function from lpeg (lpcode.c)
-static int lpeg_sizei(const Instruction *i) {
-    switch ((Opcode)i->i.code) {
-        case ISet: case ISpan:
-            return CHARSETINSTSIZE;
-        case ITestSet:
-            return CHARSETINSTSIZE + 1;
-        case ITestChar: case ITestAny:
-        case IChoice: case IJmp:
-        case ICall: case IOpenCall:
-        case ICommit: case IPartialCommit:
-        case IBackCommit:
-            return 2;
-        default:
-            return 1;
-    }
-}
-
 static void lpjit_compileAll(CompilerState* Dst) {
     int codesize = Dst->pattern->codesize;
     Instruction* begin = Dst->pattern->code;;
