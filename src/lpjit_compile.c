@@ -46,28 +46,38 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define sbegin, rbx
     |.define scurrent, r12
     |.define send, r13
+    |.define l, r8
     |.define m_state, r14
+    |.define top_capture, r15
     |.define tmp1, rbx
     |.define tmp2, rcx
     |.define tmp3, rdx
     |.define rArg1, rdi
     |.define rArg2, rsi
+    |.define rArg3, rdx
+    |.define rArg4, rcx
+    |.define rArg5, r8
+    |.define rArg6, r9
     //
     |.type mstate, MatchState, m_state
+    |.type topcapture, Capture, top_capture
     //
     |.macro prologue
         | push sbegin
         | push scurrent
         | push send
         | push m_state
+        | push top_capture
         | push tmp1
         | push tmp2
         | push tmp3
         | push rax // Integer return values
+        | mov l, rArg1
         | mov m_state, rArg2
         | mov sbegin, mstate->subject_begin
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
+        | mov dword mstate->captop, 0
     |.endmacro
     //
     |.macro epilogue
@@ -78,6 +88,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | pop tmp3
         | pop tmp2
         | pop tmp1
+        | pop top_capture
         | pop m_state
         | pop send
         | pop scurrent
@@ -87,7 +98,10 @@ static void lpjit_asmDefines(CompilerState* Dst) {
 }
 
 static void IEnd_c(CompilerState* Dst) {
-    // TODO
+    // FIXME capture[0] instead of capture[captop]
+    | mov top_capture, mstate->capture
+    | mov byte topcapture->kind, Cclose
+    | mov aword topcapture->s, NULL
     | epilogue
 }
 

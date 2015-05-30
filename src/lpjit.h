@@ -13,6 +13,7 @@ typedef struct MatchState {
     lua_State* L;
     Capture* capture;
     int ptop;
+    int captop;
 } MatchState;
 
 typedef struct Matcher Matcher;
