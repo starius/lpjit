@@ -180,7 +180,7 @@ void lpjit_compileInstruction(CompilerState* Dst) {
 
 static void lpjit_compileAll(CompilerState* Dst) {
     int codesize = Dst->pattern->codesize;
-    Instruction* begin = Dst->pattern->code;;
+    Instruction* begin = Dst->pattern->code;
     Instruction* end = begin + codesize;
     Dst->instruction = begin;
     while (Dst->instruction < end) {
