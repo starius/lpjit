@@ -22,3 +22,11 @@ local pattern2 = lpjit.compile(pattern)
 assert(pattern2:match('x') == 2)
 assert(pattern2:match('arb') == nil)
 assert(pattern2:match('bcb') == nil)
+
+local pattern = 1 - lpeg.P 'abc'
+--lpeg.pcode(pattern)
+local pattern2 = lpjit.compile(pattern)
+assert(pattern2:match('x') == 2)
+assert(pattern2:match('arb') == 2)
+assert(pattern2:match('abc') == nil)
+assert(pattern2:match('') == nil)
