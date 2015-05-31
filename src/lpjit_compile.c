@@ -241,6 +241,17 @@ static void ITestSet_c(CompilerState* Dst) {
     |2:
 }
 
+static void ISpan_c(CompilerState* Dst) {
+    |1:
+    isSubjectOkEnd(Dst);
+    | jge >2
+    isInSet(Dst);
+    | jz >2
+    | inc scurrent
+    | jmp <1
+    |2:
+}
+
 static void IJmp_c(CompilerState* Dst) {
     jmpPointed(Dst);
 }
@@ -270,7 +281,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {ISet, ISet_c},
     {ITestSet, ITestSet_c},
     // {IBehind, IBehind_c},
-    // {ISpan, ISpan_c},
+    {ISpan, ISpan_c},
     {IJmp,  IJmp_c},
     {IChoice, IChoice_c},
     // {ICall, ICall_c},
