@@ -131,6 +131,13 @@ static void IGiveup_c(CompilerState* Dst) {
     | epilogue
 }
 
+static void IRet_c(CompilerState* Dst) {
+    | pop tmp1
+    | pop tmp1
+    | pop tmp2 // label
+    | jmp tmp2
+}
+
 static void putFail(CompilerState* Dst) {
     //| mov tmp1, captop
     |9:
@@ -202,7 +209,7 @@ static void ICommit_c(CompilerState* Dst) {
 static const IC_Reg INSTRUCTIONS[] = {
     {IEnd, IEnd_c},
     {IGiveup, IGiveup_c},
-    // {IRet, IRet_c},
+    {IRet, IRet_c},
     {IAny, IAny_c},
     // {ITestAny, ITestAny_c},
     {IChar, IChar_c},
