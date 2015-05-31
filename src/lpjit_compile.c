@@ -65,6 +65,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define m_state, r14
     |.define captop, r11
     |.define tmp1, rbx
+    |.define tmp1D, ebx
     |.define tmp1B, bl
     |.define tmp2, rcx
     |.define tmp2B, cl
@@ -241,6 +242,19 @@ static void ITestSet_c(CompilerState* Dst) {
     |2:
 }
 
+static void IBehind_c(CompilerState* Dst) {
+    // n > s - o    => FAIL
+    // s - o >= n   => not Fail
+    int n = Dst->instruction->i.aux;
+    | mov tmp1, scurrent
+    | sub tmp1, sbegin
+    | cmp tmp1D, n
+    | jge >1
+    putFail(Dst);
+    |1:
+    | sub scurrent, n
+}
+
 static void ISpan_c(CompilerState* Dst) {
     |1:
     isSubjectOkEnd(Dst);
@@ -280,7 +294,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {ITestChar, ITestChar_c},
     {ISet, ISet_c},
     {ITestSet, ITestSet_c},
-    // {IBehind, IBehind_c},
+    {IBehind, IBehind_c},
     {ISpan, ISpan_c},
     {IJmp,  IJmp_c},
     {IChoice, IChoice_c},
