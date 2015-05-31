@@ -49,6 +49,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define l, r8
     |.define m_state, r14
     |.define top_capture, r15
+    |.define top_captureD, r15d
     |.define tmp1, rbx
     |.define tmp2, rcx
     |.define tmp3, rdx
@@ -98,8 +99,8 @@ static void lpjit_asmDefines(CompilerState* Dst) {
 }
 
 static void IEnd_c(CompilerState* Dst) {
-    // FIXME capture[0] instead of capture[captop]
-    | mov top_capture, mstate->capture
+    | imul top_captureD, mstate->captop, sizeof(Capture)
+    | add top_capture, mstate->capture
     | mov byte topcapture->kind, Cclose
     | mov aword topcapture->s, NULL
     | epilogue
