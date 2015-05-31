@@ -65,8 +65,11 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define m_state, r14
     |.define captop, r11
     |.define tmp1, rbx
+    |.define tmp1B, bl
     |.define tmp2, rcx
+    |.define tmp2B, cl
     |.define tmp3, rdx
+    |.define tmp3B, dl
     |.define rArg1, rdi
     |.define rArg2, rsi
     |.define rArg3, rdx
@@ -202,6 +205,42 @@ static void ITestChar_c(CompilerState* Dst) {
     |2:
 }
 
+static void isInSet(CompilerState* Dst) {
+    // see lpeg, macro testchar
+    | mov tmp1, 0
+    | mov tmp1B, [scurrent]
+    | shr tmp1B, 3
+    Instruction* next = Dst->instruction + 1;
+    const char* st = next->buff;
+    | mov tmp1B, [tmp1 + st]
+    | mov tmp2B, [scurrent]
+    | and tmp2B, 7
+    | mov tmp3B, 1
+    | shl tmp3B, tmp2B
+    | and tmp1B, tmp3B
+}
+
+static void ISet_c(CompilerState* Dst) {
+    isSubjectOkEnd(Dst);
+    | jge >1
+    isInSet(Dst);
+    | jnz >2
+    |1:
+    putFail(Dst);
+    |2:
+    | inc scurrent
+}
+
+static void ITestSet_c(CompilerState* Dst) {
+    isSubjectOkEnd(Dst);
+    | jge >1
+    isInSet(Dst);
+    | jnz >2
+    |1:
+    jmpPointed(Dst);
+    |2:
+}
+
 static void IChoice_c(CompilerState* Dst) {
     | lea tmp1, [=>POINTED_O]
     | push tmp1
@@ -224,8 +263,8 @@ static const IC_Reg INSTRUCTIONS[] = {
     {ITestAny, ITestAny_c},
     {IChar, IChar_c},
     {ITestChar, ITestChar_c},
-    // {ISet, ISet_c},
-    // {ITestSet, ITestSet_c},
+    {ISet, ISet_c},
+    {ITestSet, ITestSet_c},
     // {IBehind, IBehind_c},
     // {ISpan, ISpan_c},
     // {IJmp,  IJmp_c},

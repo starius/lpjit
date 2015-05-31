@@ -15,3 +15,10 @@ local pattern2 = lpjit.compile(pattern)
 assert(pattern2:match('abc') == 4)
 assert(pattern2:match('arb') == 4)
 assert(pattern2:match('acb') == nil)
+
+local pattern = 1 - lpeg.S 'abc'
+--lpeg.pcode(pattern)
+local pattern2 = lpjit.compile(pattern)
+assert(pattern2:match('x') == 2)
+assert(pattern2:match('arb') == nil)
+assert(pattern2:match('bcb') == nil)
