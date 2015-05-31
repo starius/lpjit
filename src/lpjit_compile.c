@@ -241,6 +241,10 @@ static void ITestSet_c(CompilerState* Dst) {
     |2:
 }
 
+static void IJmp_c(CompilerState* Dst) {
+    jmpPointed(Dst);
+}
+
 static void IChoice_c(CompilerState* Dst) {
     | lea tmp1, [=>POINTED_O]
     | push tmp1
@@ -267,7 +271,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {ITestSet, ITestSet_c},
     // {IBehind, IBehind_c},
     // {ISpan, ISpan_c},
-    // {IJmp,  IJmp_c},
+    {IJmp,  IJmp_c},
     {IChoice, IChoice_c},
     // {ICall, ICall_c},
     {ICommit, ICommit_c},
