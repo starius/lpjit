@@ -157,6 +157,11 @@ static void isSubjectOkEnd(CompilerState* Dst) {
     | cmp scurrent, send
 }
 
+static void jmpPointed(CompilerState* Dst) {
+    | lea tmp1, [=>POINTED_O]
+    | jmp tmp1
+}
+
 static void IAny_c(CompilerState* Dst) {
     isSubjectOkEnd(Dst);
     | jl >1
@@ -186,8 +191,7 @@ static void ITestChar_c(CompilerState* Dst) {
     cmpCurrentByte(Dst);
     | je >2
     |1:
-    | lea tmp1, [=>POINTED_O]
-    | push tmp1
+    jmpPointed(Dst);
     |2:
 }
 
@@ -202,8 +206,7 @@ static void ICommit_c(CompilerState* Dst) {
     | pop tmp1
     | pop tmp1
     | pop tmp1
-    | lea tmp2, [=>POINTED_O]
-    | jmp tmp2
+    jmpPointed(Dst);
 }
 
 static const IC_Reg INSTRUCTIONS[] = {
