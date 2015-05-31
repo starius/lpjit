@@ -170,6 +170,13 @@ static void IAny_c(CompilerState* Dst) {
     | inc scurrent
 }
 
+static void ITestAny_c(CompilerState* Dst) {
+    isSubjectOkEnd(Dst);
+    | jl >1
+    jmpPointed(Dst);
+    |1:
+}
+
 static void cmpCurrentByte(CompilerState* Dst) {
     | cmp byte [scurrent], Dst->instruction->i.aux
 }
@@ -214,7 +221,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {IGiveup, IGiveup_c},
     {IRet, IRet_c},
     {IAny, IAny_c},
-    // {ITestAny, ITestAny_c},
+    {ITestAny, ITestAny_c},
     {IChar, IChar_c},
     {ITestChar, ITestChar_c},
     // {ISet, ISet_c},
