@@ -39,9 +39,15 @@
 
 #define getoffset(p) (((p) + 1)->offset)
 
+#define GETOFFSET getoffset(Dst->instruction)
+
 #define CURRENT_I Dst->instruction
 
 #define CURRENT_O lpjit_offsetOf(Dst, CURRENT_I)
+
+#define POINTED_O CURRENT_O + GETOFFSET
+
+#define POINTED_I lpjit_fromOffset(Dst, POINTED_O)
 
 typedef void(*InstructionCompiler)(CompilerState*);
 
@@ -167,6 +173,32 @@ static void IChar_c(CompilerState* Dst) {
     | inc scurrent
 }
 
+static void ITestChar_c(CompilerState* Dst) {
+    isSubjectOkEnd(Dst);
+    | jge >1
+    cmpCurrentByte(Dst);
+    | je >2
+    |1:
+    | lea tmp1, [=>POINTED_O]
+    | push tmp1
+    |2:
+}
+
+static void IChoice_c(CompilerState* Dst) {
+    | lea tmp1, [=>POINTED_O]
+    | push tmp1
+    | push captop
+    | push scurrent
+}
+
+static void ICommit_c(CompilerState* Dst) {
+    | pop tmp1
+    | pop tmp1
+    | pop tmp1
+    | lea tmp2, [=>POINTED_O]
+    | jmp tmp2
+}
+
 static const IC_Reg INSTRUCTIONS[] = {
     {IEnd, IEnd_c},
     {IGiveup, IGiveup_c},
@@ -174,15 +206,15 @@ static const IC_Reg INSTRUCTIONS[] = {
     {IAny, IAny_c},
     // {ITestAny, ITestAny_c},
     {IChar, IChar_c},
-    // {ITestChar, ITestChar_c},
+    {ITestChar, ITestChar_c},
     // {ISet, ISet_c},
     // {ITestSet, ITestSet_c},
     // {IBehind, IBehind_c},
     // {ISpan, ISpan_c},
     // {IJmp,  IJmp_c},
-    // {IChoice, IChoice_c},
+     {IChoice, IChoice_c},
     // {ICall, ICall_c},
-    // {ICommit, ICommit_c},
+     {ICommit, ICommit_c},
     // {IPartialCommit, IPartialCommit_c},
     // {IBackCommit, IBackCommit_c},
     // {IFailTwice, IFailTwice_c},

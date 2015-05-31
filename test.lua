@@ -6,5 +6,12 @@ local pattern = lpeg.P 'abc'
 --lpeg.pcode(pattern)
 
 local pattern2 = lpjit.compile(pattern)
-print(pattern2:match('abc'))
-print(pattern2:match('ff'))
+assert(pattern2:match('abc') == 4)
+assert(pattern2:match('ff') == nil)
+
+local pattern = lpeg.P 'abc' + lpeg.P 'arb'
+--lpeg.pcode(pattern)
+local pattern2 = lpjit.compile(pattern)
+assert(pattern2:match('abc') == 4)
+assert(pattern2:match('arb') == 4)
+assert(pattern2:match('acb') == nil)
