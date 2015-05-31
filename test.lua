@@ -7,3 +7,4 @@ local pattern = lpeg.P 'abc'
 
 local pattern2 = lpjit.compile(pattern)
 print(pattern2:match('abc'))
+print(pattern2:match('ff'))

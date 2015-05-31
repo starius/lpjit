@@ -24,8 +24,17 @@
 #include "lpjit_memory.h"
 #include "lpjit_matcher.h"
 
+// stack:
+// | push some_label
+// | push captop
+// | push scurrent
+
+// | pop scurrent
+// | pop captop
+// | pop some_label
+
 // additional labels
-//#define LABEL_FAIL Dst->codesize
+#define LABEL_GIVEUP Dst->pattern->codesize
 #define LABELS_NUM 1
 
 #define getoffset(p) (((p) + 1)->offset)
@@ -48,8 +57,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define send, r13
     |.define l, r8
     |.define m_state, r14
-    |.define top_capture, r15
-    |.define top_captureD, r15d
+    |.define captop, r11
     |.define tmp1, rbx
     |.define tmp2, rcx
     |.define tmp3, rdx
@@ -61,14 +69,14 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define rArg6, r9
     //
     |.type mstate, MatchState, m_state
-    |.type topcapture, Capture, top_capture
+    |.type topcapture, Capture, tmp1
     //
     |.macro prologue
         | push sbegin
         | push scurrent
         | push send
         | push m_state
-        | push top_capture
+        | push captop
         | push tmp1
         | push tmp2
         | push tmp3
@@ -78,10 +86,16 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | mov sbegin, mstate->subject_begin
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
-        | mov dword mstate->captop, 0
+        | mov captop, 0
+        | mov mstate->stack_pos, rsp
+        | lea tmp1, [=>LABEL_GIVEUP]
+        | push tmp1
+        | push captop
+        | push scurrent
     |.endmacro
     //
     |.macro epilogue
+        | mov rsp, mstate->stack_pos
         // result
         | mov mstate->subject_current, scurrent
         // restore registers
@@ -89,7 +103,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | pop tmp3
         | pop tmp2
         | pop tmp1
-        | pop top_capture
+        | pop captop
         | pop m_state
         | pop send
         | pop scurrent
@@ -99,17 +113,31 @@ static void lpjit_asmDefines(CompilerState* Dst) {
 }
 
 static void IEnd_c(CompilerState* Dst) {
-    | imul top_captureD, mstate->captop, sizeof(Capture)
-    | add top_capture, mstate->capture
+    | imul tmp1, captop, sizeof(Capture)
+    | add tmp1, mstate->capture
     | mov byte topcapture->kind, Cclose
     | mov aword topcapture->s, NULL
     | epilogue
 }
 
-static void putFail(CompilerState* Dst) {
-    // TODO
-    | mov scurrent, 0
+static void IGiveup_c(CompilerState* Dst) {
+    | mov scurrent, NULL
     | epilogue
+}
+
+static void putFail(CompilerState* Dst) {
+    //| mov tmp1, captop
+    |9:
+    | pop scurrent
+    | pop captop
+    | pop tmp2 // label
+    | cmp scurrent, NULL
+    | je <9
+    //| cmp ndyncap, 0
+    //| jle >8
+    // TODO call removedyncap
+    //|8:
+    | jmp tmp2
 }
 
 static void isSubjectOkEnd(CompilerState* Dst) {
@@ -141,7 +169,7 @@ static void IChar_c(CompilerState* Dst) {
 
 static const IC_Reg INSTRUCTIONS[] = {
     {IEnd, IEnd_c},
-    // {IGiveup, IGiveup_c},
+    {IGiveup, IGiveup_c},
     // {IRet, IRet_c},
     {IAny, IAny_c},
     // {ITestAny, ITestAny_c},
@@ -188,6 +216,8 @@ static void lpjit_compileAll(CompilerState* Dst) {
         lpjit_compileInstruction(Dst);
         Dst->instruction += lpeg_sizei(Dst->instruction);
     }
+    | =>LABEL_GIVEUP:
+    IGiveup_c(Dst);
 }
 
 void lpjit_compile(lua_State* L,
