@@ -64,4 +64,16 @@ describe("lpjit", function()
         assert.equal(11, pattern2:match('(d()dd(f))'))
         assert.falsy(pattern2:match('(('))
     end)
+
+    it("matches balanced parenthesis (lpeg/test.lua)",
+    function()
+        local lpeg = require 'lpeg'
+        local m = require 'lpeg'
+        local lpjit = require 'lpjit'
+        local pattern = lpeg.P {
+            "(" * (((1 - m.S"()") + #m.P"(" * m.V(1))^0) * ")"
+        }
+        local pattern2 = lpjit.compile(pattern)
+        assert.equal(7, pattern2:match('(al())()'))
+    end)
 end)

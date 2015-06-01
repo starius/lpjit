@@ -59,7 +59,6 @@ typedef struct IC_Reg {
 
 static void lpjit_asmDefines(CompilerState* Dst) {
     // only X64 Linux
-    |.define sbegin, rbx
     |.define scurrent, r12
     |.define send, r13
     |.define l, r8
@@ -89,7 +88,6 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define postcall, .nop
     //
     |.macro prologue
-        | push sbegin
         | push scurrent
         | push send
         | push m_state
@@ -100,7 +98,6 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | push rax // Integer return values
         | mov l, rArg1
         | mov m_state, rArg2
-        | mov sbegin, mstate->subject_begin
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
         | mov captop, 0
@@ -124,7 +121,6 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | pop m_state
         | pop send
         | pop scurrent
-        | pop sbegin
         | ret
     |.endmacro
 }
@@ -264,7 +260,7 @@ static void IBehind_c(CompilerState* Dst) {
     // s - o >= n   => not Fail
     int n = Dst->instruction->i.aux;
     | mov tmp1, scurrent
-    | sub tmp1, sbegin
+    | sub tmp1, mstate->subject_begin
     | cmp tmp1D, n
     | jge >1
     putFail(Dst);
