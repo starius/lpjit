@@ -294,6 +294,21 @@ static void ICommit_c(CompilerState* Dst) {
     jmpPointed(Dst);
 }
 
+static void IPartialCommit_c(CompilerState* Dst) {
+    | pop tmp1 // scurrent
+    | pop tmp1 // captop
+    | push captop
+    | push scurrent
+    jmpPointed(Dst);
+}
+
+static void IBackCommit_c(CompilerState* Dst) {
+    | pop scurrent
+    | pop captop
+    | pop tmp2 // label, ignored
+    jmpPointed(Dst);
+}
+
 static void IFailTwice_c(CompilerState* Dst) {
     | pop tmp1
     | pop tmp1
@@ -321,8 +336,8 @@ static const IC_Reg INSTRUCTIONS[] = {
     {IChoice, IChoice_c},
     {ICall, ICall_c},
     {ICommit, ICommit_c},
-    // {IPartialCommit, IPartialCommit_c},
-    // {IBackCommit, IBackCommit_c},
+    {IPartialCommit, IPartialCommit_c},
+    {IBackCommit, IBackCommit_c},
     {IFailTwice, IFailTwice_c},
     {IFail, IFail_c},
     // {ICloseRunTime, ICloseRunTime_c},
