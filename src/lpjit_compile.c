@@ -206,12 +206,12 @@ static void ITestChar_c(CompilerState* Dst) {
     |2:
 }
 
-static void isInSet(CompilerState* Dst) {
+static void isInSet(CompilerState* Dst, int shift) {
     // see lpeg, macro testchar
     | mov tmp1, 0
     | mov tmp1B, [scurrent]
     | shr tmp1B, 3
-    Instruction* next = Dst->instruction + 1;
+    Instruction* next = Dst->instruction + shift;
     const char* st = next->buff;
     | mov tmp1B, [tmp1 + st]
     | mov tmp2B, [scurrent]
@@ -224,7 +224,7 @@ static void isInSet(CompilerState* Dst) {
 static void ISet_c(CompilerState* Dst) {
     isSubjectOkEnd(Dst);
     | jge >1
-    isInSet(Dst);
+    isInSet(Dst, 1);
     | jnz >2
     |1:
     putFail(Dst);
@@ -235,7 +235,7 @@ static void ISet_c(CompilerState* Dst) {
 static void ITestSet_c(CompilerState* Dst) {
     isSubjectOkEnd(Dst);
     | jge >1
-    isInSet(Dst);
+    isInSet(Dst, 2);
     | jnz >2
     |1:
     jmpPointed(Dst);
@@ -259,7 +259,7 @@ static void ISpan_c(CompilerState* Dst) {
     |1:
     isSubjectOkEnd(Dst);
     | jge >2
-    isInSet(Dst);
+    isInSet(Dst, 1);
     | jz >2
     | inc scurrent
     | jmp <1
