@@ -104,6 +104,8 @@ int lua_lpjit_match(lua_State* L) {
     mstate.subject_end = s + l;
     mstate.L = L;
     mstate.capture = capture;
+    mstate.capsize = INITCAPSIZE;
+    //mstate.cap_top = 0; // is not used by ASM
     lpjit_match(L, matcher, &mstate);
     const char* r = mstate.subject_current;
     if (r == NULL) {
