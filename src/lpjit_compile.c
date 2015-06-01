@@ -134,6 +134,12 @@ static void loadTopCapture(CompilerState* Dst) {
     | add top_capture, mstate->capture
 }
 
+static void loadPreTopCapture(CompilerState* Dst) {
+    | imul top_capture, captop, sizeof(Capture)
+    | add top_capture, mstate->capture
+    | sub top_capture, sizeof(Capture)
+}
+
 static void IEnd_c(CompilerState* Dst) {
     loadTopCapture(Dst);
     | mov byte topcapture->kind, Cclose
@@ -354,6 +360,27 @@ static void putPushCapture(CompilerState* Dst) {
     checkCaptop(Dst);
 }
 
+static void ICloseCapture_c(CompilerState* Dst) {
+    loadPreTopCapture(Dst);
+    | cmp byte topcapture->siz, 0
+    | jne >2
+    | mov tmp3, scurrent
+    | sub tmp3, topcapture->s
+    | cmp tmp3, UCHAR_MAX
+    | jge >2
+    // then
+    | inc tmp3
+    | mov byte topcapture->siz, tmp3B
+    | jmp >4
+    // else
+    |2:
+    loadTopCapture(Dst);
+    | mov byte topcapture->siz, 1
+    | mov aword topcapture->s, scurrent
+    putPushCapture(Dst);
+    |4:
+}
+
 static void IOpenCapture_c(CompilerState* Dst) {
     loadTopCapture(Dst);
     | mov byte topcapture->siz, 0
@@ -393,7 +420,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {IFailTwice, IFailTwice_c},
     {IFail, IFail_c},
     // {ICloseRunTime, ICloseRunTime_c},
-    // {ICloseCapture, ICloseCapture_c},
+    {ICloseCapture, ICloseCapture_c},
     {IOpenCapture, IOpenCapture_c},
     {IFullCapture, IFullCapture_c},
     {0, NULL},
