@@ -47,6 +47,8 @@ int lpjit_pushMatcher(lua_State* L) {
     // Matcher depends on Pattern (bitsets for ISet etc)
     lua_pushvalue(L, 1); // pattern
     matcher->pattern_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_getfenv(L, 1); // ktable
+    lua_setfenv(L, matcher_index); // ktable
     //
     matcher->buffer = 0;
     matcher->impl = 0;
