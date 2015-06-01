@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include <lua.h>
 #include <lauxlib.h>
 
@@ -572,4 +575,18 @@ int lpeg_getcaptures (lua_State *L, const char *s, const char *r, int ptop) {
     n = 1;
   }
   return n;
+}
+
+/*
+** Double the size of the array of captures
+*/
+Capture* lpeg_doubleCap(lua_State* L, Capture* cap,
+        int captop, int ptop) {
+  Capture *newc;
+  if (captop >= INT_MAX/((int)sizeof(Capture) * 2))
+    luaL_error(L, "too many captures");
+  newc = (Capture *)lua_newuserdata(L, captop * 2 * sizeof(Capture));
+  memcpy(newc, cap, captop * sizeof(Capture));
+  lua_replace(L, caplistidx(ptop));
+  return newc;
 }

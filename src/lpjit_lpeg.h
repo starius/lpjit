@@ -24,4 +24,7 @@ int lpeg_getcaptures(lua_State *L, const char *s,
         const char *r, int ptop);
 int lpeg_finddyncap(Capture *cap, Capture *last);
 
+Capture* lpeg_doubleCap(lua_State* L, Capture* cap,
+        int captop, int ptop);
+
 #endif

@@ -12,7 +12,9 @@ typedef struct MatchState {
     const char* subject_end; // e
     lua_State* L;
     Capture* capture;
-    int ptop;
+    long long int capsize;
+    long long int ptop;
+    long long int cap_top;
     void* stack_pos;
 } MatchState;
 

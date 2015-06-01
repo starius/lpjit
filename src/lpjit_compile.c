@@ -7,6 +7,7 @@
 
 #include "lpjit_dasm.h"
 #include "lpjit_compiler.h"
+#include "lpjit_match.h"
 #include "dynasm/dasm_x86.h"
 
 |.if X64
@@ -82,6 +83,11 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.type mstate, MatchState, m_state
     |.type topcapture, Capture, top_capture
     //
+    |.macro prepcall1, arg1
+        | mov rArg1, arg1
+    |.endmacro
+    |.define postcall, .nop
+    //
     |.macro prologue
         | push sbegin
         | push scurrent
@@ -123,9 +129,13 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.endmacro
 }
 
-static void IEnd_c(CompilerState* Dst) {
+static void loadTopCapture(CompilerState* Dst) {
     | imul top_capture, captop, sizeof(Capture)
     | add top_capture, mstate->capture
+}
+
+static void IEnd_c(CompilerState* Dst) {
+    loadTopCapture(Dst);
     | mov byte topcapture->kind, Cclose
     | mov aword topcapture->s, NULL
     | epilogue
@@ -321,6 +331,47 @@ static void IFail_c(CompilerState* Dst) {
     putFail(Dst);
 }
 
+static void putDoubleCap(CompilerState* Dst) {
+    | mov mstate->cap_top, captop
+    | prepcall1 m_state
+    | call &lpjit_doubleCap
+    | postcall 1
+}
+
+static void checkCaptop(CompilerState* Dst) {
+    | mov tmp3, mstate->capsize
+    | cmp captop, tmp3
+    | jl >6
+    putDoubleCap(Dst);
+    |6:
+}
+
+static void putPushCapture(CompilerState* Dst) {
+    // loadTopCapture(Dst); // already loaded
+    | mov word topcapture->idx, Dst->instruction->i.key
+    | mov byte topcapture->kind, getkind(Dst->instruction)
+    | inc captop
+    checkCaptop(Dst);
+}
+
+static void IOpenCapture_c(CompilerState* Dst) {
+    loadTopCapture(Dst);
+    | mov byte topcapture->siz, 0
+    | mov aword topcapture->s, scurrent
+    putPushCapture(Dst);
+}
+
+static void IFullCapture_c(CompilerState* Dst) {
+    loadTopCapture(Dst);
+    int cap_size = getoff(Dst->instruction);
+    int siz1 = cap_size + 1;
+    | mov byte topcapture->siz, siz1;
+    | mov tmp2, scurrent
+    | sub tmp2, cap_size
+    | mov aword topcapture->s, tmp2
+    putPushCapture(Dst);
+}
+
 static const IC_Reg INSTRUCTIONS[] = {
     {IEnd, IEnd_c},
     {IGiveup, IGiveup_c},
@@ -343,8 +394,8 @@ static const IC_Reg INSTRUCTIONS[] = {
     {IFail, IFail_c},
     // {ICloseRunTime, ICloseRunTime_c},
     // {ICloseCapture, ICloseCapture_c},
-    // {IOpenCapture, IOpenCapture_c},
-    // {IFullCapture, IFullCapture_c},
+    {IOpenCapture, IOpenCapture_c},
+    {IFullCapture, IFullCapture_c},
     {0, NULL},
 };
 
