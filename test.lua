@@ -30,3 +30,11 @@ assert(pattern2:match('x') == 2)
 assert(pattern2:match('arb') == 2)
 assert(pattern2:match('abc') == nil)
 assert(pattern2:match('') == nil)
+
+local pattern = lpeg.P {
+    "(" * (lpeg.V(1))^0 * ")"
+}
+local pattern2 = lpjit.compile(pattern)
+assert(pattern2:match('()') == 3)
+assert(pattern2:match('(()())') == 7)
+assert(pattern2:match('((') == nil)

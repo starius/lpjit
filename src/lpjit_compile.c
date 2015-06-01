@@ -277,6 +277,16 @@ static void IChoice_c(CompilerState* Dst) {
     | push scurrent
 }
 
+static void ICall_c(CompilerState* Dst) {
+    | lea tmp1, [>7]
+    | push tmp1
+    | push captop
+    | mov tmp1, NULL
+    | push tmp1 // scurrent
+    jmpPointed(Dst);
+    |7:
+}
+
 static void ICommit_c(CompilerState* Dst) {
     | pop tmp1
     | pop tmp1
@@ -309,7 +319,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {ISpan, ISpan_c},
     {IJmp,  IJmp_c},
     {IChoice, IChoice_c},
-    // {ICall, ICall_c},
+    {ICall, ICall_c},
     {ICommit, ICommit_c},
     // {IPartialCommit, IPartialCommit_c},
     // {IBackCommit, IBackCommit_c},
