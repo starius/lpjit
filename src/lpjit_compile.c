@@ -65,6 +65,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define m_state, r14
     |.define captop, r11
     |.define tmp1, rbx
+    |.define top_capture, tmp1
     |.define tmp1D, ebx
     |.define tmp1B, bl
     |.define tmp2, rcx
@@ -79,7 +80,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define rArg6, r9
     //
     |.type mstate, MatchState, m_state
-    |.type topcapture, Capture, tmp1
+    |.type topcapture, Capture, top_capture
     //
     |.macro prologue
         | push sbegin
@@ -123,8 +124,8 @@ static void lpjit_asmDefines(CompilerState* Dst) {
 }
 
 static void IEnd_c(CompilerState* Dst) {
-    | imul tmp1, captop, sizeof(Capture)
-    | add tmp1, mstate->capture
+    | imul top_capture, captop, sizeof(Capture)
+    | add top_capture, mstate->capture
     | mov byte topcapture->kind, Cclose
     | mov aword topcapture->s, NULL
     | epilogue
