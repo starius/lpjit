@@ -9,9 +9,4 @@
 #define compat_setfuncs(L, funcs) luaL_setfuncs(L, funcs, 0)
 #endif
 
-#if LUA_VERSION_NUM >= 502
-#define lua_equal(L,idx1,idx2) \
-    lua_compare(L,(idx1),(idx2),LUA_OPEQ)
-#endif
-
 #endif

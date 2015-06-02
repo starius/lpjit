@@ -5,7 +5,6 @@
 #include <lauxlib.h>
 
 #include "lpjit_lpeg.h"
-#include "lpjit_compat.h"
 
 /*
 ** Get the initial position for the match, interpreting negative
