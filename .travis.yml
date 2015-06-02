@@ -19,6 +19,7 @@ branches:
 
 before_install:
   - source .travis/setenv_lua.sh
+  - luarocks install lpeg
 
 install:
   - sh build.sh
