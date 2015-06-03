@@ -432,7 +432,6 @@ void lpjit_compileInstruction(CompilerState* Dst) {
     const IC_Reg* c;
     for (c = INSTRUCTIONS; c->compiler != NULL; ++c) {
         if (c->opcode == opcode) {
-            | =>CURRENT_O:
             c->compiler(Dst);
             return;
         }
@@ -446,6 +445,7 @@ static void lpjit_compileAll(CompilerState* Dst) {
     Instruction* end = begin + codesize;
     Dst->instruction = begin;
     while (Dst->instruction < end) {
+        | =>CURRENT_O:
         lpjit_compileInstruction(Dst);
         Dst->instruction += lpeg_sizei(Dst->instruction);
     }
