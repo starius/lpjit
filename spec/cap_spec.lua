@@ -18,13 +18,11 @@ describe("lpjit", function()
     allchar = string.char(unpack(allchar))
     assert(#allchar == 256)
 
-    pending("can grow list of captures", function()
+    it("can grow list of captures", function()
         local lpeg = require 'lpeg'
         local lpjit = require 'lpjit'
 
         local pattern = lpeg.Cs((lpeg.R'09' + lpeg.P(1)/"")^0)
-
-        lpeg.pcode(pattern)
 
         local pattern2 = lpjit.compile(pattern)
         for i = 1, 1000 do
