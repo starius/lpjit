@@ -24,8 +24,7 @@ int lpjit_pushMatcher(lua_State *L);
 
 Matcher* lpjit_checkMatcher(lua_State *L, int index);
 
-void lpjit_match(lua_State *L, const Matcher* matcher,
-                 MatchState* state);
+void lpjit_match(const Matcher* matcher, MatchState* state);
 
 int lua_lpjit_match(lua_State* L);
 

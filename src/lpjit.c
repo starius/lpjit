@@ -71,11 +71,11 @@ Matcher* lpjit_checkMatcher(lua_State* L, int index) {
     return luaL_checkudata(L, index, "lpjit_Matcher");
 }
 
-void lpjit_match(lua_State *L, const Matcher* matcher,
-            MatchState* mstate) {
+void lpjit_match(const Matcher* matcher, MatchState* mstate) {
+    lua_State* L = mstate->L;
     luaL_argcheck(L, matcher->buffer != 0, 1, "Bad matcher");
     luaL_argcheck(L, matcher->impl != 0, 1, "Bad matcher");
-    matcher->impl(L, mstate);
+    matcher->impl(mstate);
     // result is in mstate->subject_current
 }
 
@@ -107,7 +107,7 @@ int lua_lpjit_match(lua_State* L) {
     mstate.capsize = INITCAPSIZE;
     mstate.ptop = ptop;
     //mstate.cap_top = 0; // is not used by ASM
-    lpjit_match(L, matcher, &mstate);
+    lpjit_match(matcher, &mstate);
     const char* r = mstate.subject_current;
     if (r == NULL) {
         lua_pushnil(L);

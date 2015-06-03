@@ -61,7 +61,6 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     // only X64 Linux
     |.define scurrent, r12
     |.define send, r13
-    |.define l, r8
     |.define m_state, r14
     |.define captop, r11
     |.define tmp1, rbx
@@ -96,8 +95,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | push tmp2
         | push tmp3
         | push rax // Integer return values
-        | mov l, rArg1
-        | mov m_state, rArg2
+        | mov m_state, rArg1
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
         | mov captop, 0

@@ -4,7 +4,7 @@
 #include "lpjit.h"
 #include "lpjit_dasm.h"
 
-typedef void(*MatcherImpl)(lua_State*, MatchState*);
+typedef void(*MatcherImpl)(MatchState*);
 
 typedef struct Matcher {
     void* buffer;
