@@ -81,20 +81,34 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.type mstate, MatchState, m_state
     |.type topcapture, Capture, top_capture
     //
-    |.macro prepcall1, arg1
-        | mov rArg1, arg1
+    |.macro pushCallerSave
     |.endmacro
-    |.define postcall, .nop
-    //
-    |.macro prologue
+    |.macro popCallerSave
+    |.endmacro
+    |.macro pushCalleSave
         | push scurrent
         | push send
         | push m_state
         | push captop
-        | push tmp1
-        | push tmp2
-        | push tmp3
         | push rax // Integer return values
+    |.endmacro
+    |.macro popCalleSave
+        | pop rax
+        | pop captop
+        | pop m_state
+        | pop send
+        | pop scurrent
+    |.endmacro
+    |.macro prepcall1, arg1
+        | pushCallerSave
+        | mov rArg1, arg1
+    |.endmacro
+    |.macro postcall, n
+        | popCallerSave
+    |.endmacro
+    //
+    |.macro prologue
+        | pushCalleSave
         | mov m_state, rArg1
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
@@ -111,14 +125,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         // result
         | mov mstate->subject_current, scurrent
         // restore registers
-        | pop rax
-        | pop tmp3
-        | pop tmp2
-        | pop tmp1
-        | pop captop
-        | pop m_state
-        | pop send
-        | pop scurrent
+        | popCalleSave
         | ret
     |.endmacro
 }
