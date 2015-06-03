@@ -36,8 +36,9 @@
 
 // additional labels
 #define LABEL_GIVEUP Dst->pattern->codesize
-#define LABEL_EPILOGUE Dst->pattern->codesize + 1
-#define LABELS_NUM 2
+#define LABEL_STACKOVERFLOW Dst->pattern->codesize + 1
+#define LABEL_EPILOGUE Dst->pattern->codesize + 2
+#define LABELS_NUM 3
 
 #define getoffset(p) (((p) + 1)->offset)
 
@@ -64,6 +65,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define send, r13
     |.define m_state, r14
     |.define captop, r15
+    |.define stack_size, rbx
     |.define tmp1, r8
     |.define top_capture, tmp1
     |.define tmp1D, r8d
@@ -91,10 +93,12 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | push send
         | push m_state
         | push captop
+        | push stack_size
         | push rax // Integer return values
     |.endmacro
     |.macro popCalleSave
         | pop rax
+        | pop stack_size
         | pop captop
         | pop m_state
         | pop send
@@ -114,6 +118,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
         | mov captop, 0
+        | mov stack_size, 1 // 1st element is IGiveup
         | mov mstate->stack_pos, rsp
         | lea tmp1, [=>LABEL_GIVEUP]
         | push tmp1
@@ -142,6 +147,16 @@ static void loadPreTopCapture(CompilerState* Dst) {
     | sub top_capture, sizeof(Capture)
 }
 
+static void increaseStackSize(CompilerState* Dst) {
+    | cmp stack_size, Dst->max_stack_size
+    | jge =>LABEL_STACKOVERFLOW
+    | inc stack_size
+}
+
+static void decreaseStackSize(CompilerState* Dst) {
+    | dec stack_size
+}
+
 static void IEnd_c(CompilerState* Dst) {
     loadTopCapture(Dst);
     | mov byte topcapture->kind, Cclose
@@ -155,6 +170,7 @@ static void IGiveup_c(CompilerState* Dst) {
 }
 
 static void IRet_c(CompilerState* Dst) {
+    decreaseStackSize(Dst);
     | pop tmp1
     | pop tmp1
     | pop tmp2 // label
@@ -164,6 +180,7 @@ static void IRet_c(CompilerState* Dst) {
 static void putFail(CompilerState* Dst) {
     //| mov tmp1, captop
     |9:
+    decreaseStackSize(Dst);
     | pop scurrent
     | pop captop
     | pop tmp2 // label
@@ -289,6 +306,7 @@ static void IJmp_c(CompilerState* Dst) {
 }
 
 static void IChoice_c(CompilerState* Dst) {
+    increaseStackSize(Dst);
     | lea tmp1, [=>POINTED_O]
     | push tmp1
     | push captop
@@ -296,6 +314,7 @@ static void IChoice_c(CompilerState* Dst) {
 }
 
 static void ICall_c(CompilerState* Dst) {
+    increaseStackSize(Dst);
     | lea tmp1, [>7]
     | push tmp1
     | push captop
@@ -306,6 +325,7 @@ static void ICall_c(CompilerState* Dst) {
 }
 
 static void ICommit_c(CompilerState* Dst) {
+    decreaseStackSize(Dst);
     | pop tmp1
     | pop tmp1
     | pop tmp1
@@ -321,6 +341,7 @@ static void IPartialCommit_c(CompilerState* Dst) {
 }
 
 static void IBackCommit_c(CompilerState* Dst) {
+    decreaseStackSize(Dst);
     | pop scurrent
     | pop captop
     | pop tmp2 // label, ignored
@@ -328,6 +349,7 @@ static void IBackCommit_c(CompilerState* Dst) {
 }
 
 static void IFailTwice_c(CompilerState* Dst) {
+    decreaseStackSize(Dst);
     | pop tmp1
     | pop tmp1
     | pop tmp1
@@ -451,6 +473,8 @@ static void lpjit_compileAll(CompilerState* Dst) {
     }
     | =>LABEL_GIVEUP:
     IGiveup_c(Dst);
+    | =>LABEL_STACKOVERFLOW:
+    | mov scurrent, LPJIT_STACKOVERFLOW
     | =>LABEL_EPILOGUE:
     | epilogue
 }

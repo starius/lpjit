@@ -7,6 +7,7 @@
 typedef void(*MatcherImpl)(MatchState*);
 
 #define LPJIT_GIVEUP ((const char*)0)
+#define LPJIT_STACKOVERFLOW ((const char*)1)
 
 typedef struct Matcher {
     void* buffer;

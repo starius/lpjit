@@ -113,6 +113,9 @@ int lua_lpjit_match(lua_State* L) {
         lua_pushnil(L);
         return 1;
     }
+    if (r == LPJIT_STACKOVERFLOW) {
+        return luaL_error(L, "too many pending calls/choices");
+    }
     return lpeg_getcaptures(L, s, r, ptop);
 }
 

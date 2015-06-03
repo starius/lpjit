@@ -27,4 +27,6 @@ int lpeg_finddyncap(Capture *cap, Capture *last);
 Capture* lpeg_doubleCap(lua_State* L, Capture* cap,
         int captop, int ptop);
 
+int lpeg_maxStackIndex(lua_State* L);
+
 #endif

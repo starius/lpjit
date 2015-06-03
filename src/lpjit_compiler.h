@@ -9,6 +9,7 @@ typedef struct CompilerState {
     lua_State* L;
     Pattern* pattern;
     Instruction* instruction;
+    long long int max_stack_size;
 } CompilerState;
 
 void lpjit_compilerInit(CompilerState* cstate,
