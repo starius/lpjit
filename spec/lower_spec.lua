@@ -3,6 +3,7 @@ describe("lpjit", function()
     for i = 0, 255 do
         allchar[i + 1] = i
     end
+    local unpack = unpack or table.unpack
     allchar = string.char(unpack(allchar))
     assert(#allchar == 256)
 
