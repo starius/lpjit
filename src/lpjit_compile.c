@@ -36,7 +36,8 @@
 
 // additional labels
 #define LABEL_GIVEUP Dst->pattern->codesize
-#define LABELS_NUM 1
+#define LABEL_EPILOGUE Dst->pattern->codesize + 1
+#define LABELS_NUM 2
 
 #define getoffset(p) (((p) + 1)->offset)
 
@@ -145,12 +146,12 @@ static void IEnd_c(CompilerState* Dst) {
     loadTopCapture(Dst);
     | mov byte topcapture->kind, Cclose
     | mov aword topcapture->s, NULL
-    | epilogue
+    | jmp =>LABEL_EPILOGUE
 }
 
 static void IGiveup_c(CompilerState* Dst) {
     | mov scurrent, LPJIT_GIVEUP
-    | epilogue
+    | jmp =>LABEL_EPILOGUE
 }
 
 static void IRet_c(CompilerState* Dst) {
@@ -450,6 +451,8 @@ static void lpjit_compileAll(CompilerState* Dst) {
     }
     | =>LABEL_GIVEUP:
     IGiveup_c(Dst);
+    | =>LABEL_EPILOGUE:
+    | epilogue
 }
 
 void lpjit_compile(lua_State* L,
