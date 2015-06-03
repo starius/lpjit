@@ -32,3 +32,5 @@
 *.dSYM/
 
 *_posix64.c
+
+minilua
