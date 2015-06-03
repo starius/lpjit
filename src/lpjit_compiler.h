@@ -7,7 +7,6 @@
 typedef struct CompilerState {
     dasm_State* d;
     lua_State* L;
-    int nlabels;
     Pattern* pattern;
     Instruction* instruction;
 } CompilerState;

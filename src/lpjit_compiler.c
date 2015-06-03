@@ -4,7 +4,6 @@ void lpjit_compilerInit(CompilerState* cstate,
                         lua_State* L,
                         Pattern* pattern) {
     cstate->L = L;
-    cstate->nlabels = 0;
     cstate->pattern = pattern;
     cstate->instruction = pattern->code;
 }
