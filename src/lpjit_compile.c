@@ -180,8 +180,7 @@ static void isSubjectOkEnd(CompilerState* Dst) {
 }
 
 static void jmpPointed(CompilerState* Dst) {
-    | lea tmp1, [=>POINTED_O]
-    | jmp tmp1
+    | jmp =>POINTED_O
 }
 
 static void IAny_c(CompilerState* Dst) {
