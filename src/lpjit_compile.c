@@ -149,7 +149,7 @@ static void IEnd_c(CompilerState* Dst) {
 }
 
 static void IGiveup_c(CompilerState* Dst) {
-    | mov scurrent, NULL
+    | mov scurrent, LPJIT_GIVEUP
     | epilogue
 }
 

@@ -109,7 +109,7 @@ int lua_lpjit_match(lua_State* L) {
     //mstate.cap_top = 0; // is not used by ASM
     lpjit_match(matcher, &mstate);
     const char* r = mstate.subject_current;
-    if (r == NULL) {
+    if (r == LPJIT_GIVEUP) {
         lua_pushnil(L);
         return 1;
     }
