@@ -63,10 +63,10 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define send, r13
     |.define m_state, r14
     |.define captop, r15
-    |.define tmp1, rbx
+    |.define tmp1, r8
     |.define top_capture, tmp1
-    |.define tmp1D, ebx
-    |.define tmp1B, bl
+    |.define tmp1D, r8d
+    |.define tmp1B, r8b
     |.define tmp2, rcx
     |.define tmp2B, cl
     |.define tmp3, rdx
