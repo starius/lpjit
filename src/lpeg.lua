@@ -69,11 +69,17 @@ local function unwrap(obj)
 end
 
 local function wrapGenerator(E)
-    return function(obj, ...)
-        obj = unwrap(obj)
-        -- eliminate tail nils, fix lpeg.R()
-        local args = {obj, ...}
-        return wrapPattern(E(unpack(args)))
+    return function(...)
+        local args = {...}
+        local first = unwrap(args[1])
+        local nargs = select('#', ...)
+        if nargs == 0 then
+            return wrapPattern(E())
+        elseif nargs == 1 then
+            return wrapPattern(E(first))
+        else
+            return wrapPattern(E(first, select(2, ...)))
+        end
     end
 end
 
