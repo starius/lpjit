@@ -8,14 +8,15 @@
 
 typedef struct MatchState {
     const char* subject_begin; // o
-    const char* subject_current; // s, start position
+    const char* subject_current; // s, start position, ASM<->C
     const char* subject_end; // e
     lua_State* L;
     Capture* capture;
-    long long int capsize;
-    long long int ptop;
-    long long int cap_top; // ASM->C
+    long long int capsize; // C->ASM (stored only in C)
+    long long int ptop; // C
+    long long int cap_top; // ASM<->C
     long long int cap_level; // ASM->C
+    long long int n_dyncap; // ASM<->C
     void* stack_pos; // ASM -> ASM
 } MatchState;
 

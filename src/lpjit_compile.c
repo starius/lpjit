@@ -392,6 +392,23 @@ static void putPushCapture(CompilerState* Dst) {
     checkCaptop(Dst);
 }
 
+static void ICloseRunTime_c(CompilerState* Dst) {
+    | mov mstate->cap_top, captop
+    | mov mstate->subject_current, scurrent
+    | mov mstate->n_dyncap, ndyncap
+    | prepcall1 m_state
+    | call &lpjit_ICloseRunTime
+    | postcall 1
+    | mov captop, mstate->cap_top
+    | cmp int_result, LPJIT_FAIL
+    | jne, >7
+    putFail(Dst);
+    |7:
+    | mov scurrent, mstate->subject_current
+    | mov ndyncap, mstate->n_dyncap
+    // captop already moved
+}
+
 static void ICloseCapture_c(CompilerState* Dst) {
     loadPreTopCapture(Dst);
     | cmp byte topcapture->siz, 0
@@ -451,7 +468,7 @@ static const IC_Reg INSTRUCTIONS[] = {
     {IBackCommit, IBackCommit_c},
     {IFailTwice, IFailTwice_c},
     {IFail, IFail_c},
-    // {ICloseRunTime, ICloseRunTime_c},
+    {ICloseRunTime, ICloseRunTime_c},
     {ICloseCapture, ICloseCapture_c},
     {IOpenCapture, IOpenCapture_c},
     {IFullCapture, IFullCapture_c},
