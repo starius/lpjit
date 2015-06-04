@@ -21,4 +21,15 @@ describe("lpjit.lpeg", function()
         local m = require 'lpjit.lpeg'
         assert.equal(print, m.match(m.Carg(1), 'a', 1, print))
     end)
+
+    it("applies metamethods to 3d party objects", function()
+        local m = require 'lpjit.lpeg'
+        local mt = getmetatable(m.P(1))
+        local p = mt.__add(function (s, i)
+            return i
+        end, function (s, i)
+            return nil
+        end)
+        assert.truthy(m.match(p, "alo"))
+    end)
 end)

@@ -88,14 +88,14 @@ for _, E in ipairs {'B', 'S', 'R', 'Cf', 'Cs', 'Cmt', 'Carg',
     lpjit_lpeg[E] = wrapGenerator(lpeg[E])
 end
 
+local lpeg_mt = getmetatable(lpeg.P(1))
+
 for _, binop in ipairs {'__unm', '__mul', '__add', '__sub',
         '__div', '__pow', '__len'} do
     mt[binop] = function(a, b)
         a = unwrap(a)
         b = unwrap(b)
-        local am = getmetatable(a)
-        local bm = getmetatable(b)
-        local f = (am and am[binop]) or (bm and bm[binop])
+        local f = assert(lpeg_mt[binop])
         return wrapPattern(f(a, b))
     end
 end
