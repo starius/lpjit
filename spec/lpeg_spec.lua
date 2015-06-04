@@ -1,6 +1,5 @@
 describe("lpjit.lpeg", function()
     it("has enough stack size", function()
-        lpeg.setmaxstack(5)
         local m = require 'lpjit.lpeg'
         local b = {[1] =
             "(" * (((1 - m.S"()") + #m.P"(" * m.V(1))^0) * ")"
