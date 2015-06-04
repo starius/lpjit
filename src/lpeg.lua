@@ -79,8 +79,9 @@ for _, binop in ipairs {'__unm', '__mul', '__add', '__sub',
     mt[binop] = function(a, b)
         a = unwrapPattern(a)
         b = unwrapPattern(b)
-        local f = getmetatable(a)[binop] or
-            getmetatable(b)[binop]
+        local am = getmetatable(a)
+        local bm = getmetatable(b)
+        local f = (am and am[binop]) or (bm and bm[binop])
         return wrapPattern(f(a, b))
     end
 end
