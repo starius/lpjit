@@ -32,4 +32,15 @@ describe("lpjit.lpeg", function()
         end)
         assert.truthy(m.match(p, "alo"))
     end)
+
+    it("can apply match-time captures", function()
+        local m = require 'lpjit.lpeg'
+        local mt = getmetatable(m.P(1))
+        local p = mt.__mul(function (s, i)
+            return i
+        end, function (s, i)
+            return nil
+        end)
+        assert.falsy(m.match(p, "alo"))
+    end)
 end)
