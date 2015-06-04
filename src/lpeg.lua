@@ -3,6 +3,8 @@ local lpjit_lpeg = {}
 local lpjit = require 'lpjit'
 local lpeg = require 'lpeg'
 
+local unpack = unpack or table.unpack
+
 local mt = {}
 
 local compiled = {}
@@ -61,7 +63,9 @@ local function wrapGenerator(E)
         else
             obj = unwrapPattern(obj)
         end
-        return wrapPattern(E(obj, ...))
+        -- eliminate tail nils, fix lpeg.R()
+        local args = {obj, ...}
+        return wrapPattern(E(unpack(args)))
     end
 end
 
