@@ -96,14 +96,9 @@ end
 
 function lpjit_lpeg.locale(t)
     local funcs0 = lpeg.locale()
-    local funcs = {}
+    local funcs = t or {}
     for k, v in pairs(funcs0) do
         funcs[k] = wrapPattern(v)
-    end
-    if t then
-        for k, v in pairs(funcs) do
-            t[k] = v
-        end
     end
     return funcs
 end
