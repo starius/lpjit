@@ -505,7 +505,7 @@ static int pushcapture (CapState *cs) {
     case Carg: {
       int arg = (cs->cap++)->idx;
       if (arg + FIXEDARGS > cs->ptop)
-        return luaL_error(L, "reference to absent argument #%d", arg);
+        return luaL_error(L, "reference to extra absent argument #%d", arg);
       lua_pushvalue(L, arg + FIXEDARGS);
       return 1;
     }
