@@ -75,4 +75,13 @@ describe("lpjit", function()
         local pattern2 = lpjit.compile(pattern)
         assert.equal(7, pattern2:match('(al())()'))
     end)
+
+    it("matches choice", function()
+        local lpeg = require 'lpeg'
+        local lpjit = require 'lpjit'
+        local pattern = lpeg.P '4' + lpeg.P '5'
+        local pattern2 = lpjit.compile(pattern)
+        assert.equal(2, pattern2:match('45'))
+        assert.equal(2, pattern2:match('54'))
+    end)
 end)
