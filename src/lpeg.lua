@@ -83,7 +83,11 @@ end
 
 function lpjit_lpeg.match(obj, ...)
     if not compiled[obj] then
-        compiled[obj] = lpjit.compile(unwrapPattern(obj))
+        obj = unwrapPattern(obj)
+        if lpeg.type(obj) ~= 'pattern' then
+            obj = lpeg.P(obj)
+        end
+        compiled[obj] = lpjit.compile(obj)
     end
     return compiled[obj]:match(...)
 end
