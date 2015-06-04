@@ -37,4 +37,10 @@ int lpeg_maxStackIndex(lua_State* L);
 int lpeg_removedyncap(lua_State *L, Capture *capture,
                       int level, int last);
 
+int lpeg_resdyncaptures(lua_State *L, int fr,
+        int curr, int limit);
+
+void lpeg_adddyncaptures(const char *s, Capture *base,
+        int n, int fd);
+
 #endif

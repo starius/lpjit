@@ -619,3 +619,50 @@ int lpeg_removedyncap(lua_State *L, Capture *capture,
     lua_settop(L, id - 1);  /* remove captures */
     return top - id + 1;  /* number of values removed */
 }
+
+/*
+** Interpret the result of a dynamic capture: false -> fail;
+** true -> keep current position; number -> next position.
+** Return new subject position. 'fr' is stack index where
+** is the result; 'curr' is current subject position; 'limit'
+** is subject's size.
+*/
+int lpeg_resdyncaptures(lua_State *L, int fr,
+        int curr, int limit) {
+  lua_Integer res;
+  if (!lua_toboolean(L, fr)) {  /* false value? */
+    lua_settop(L, fr - 1);  /* remove results */
+    return -1;  /* and fail */
+  }
+  else if (lua_isboolean(L, fr))  /* true? */
+    res = curr;  /* keep current position */
+  else {
+    res = lua_tointeger(L, fr) - 1;  /* new position */
+    if (res < curr || res > limit)
+      luaL_error(L, "invalid position returned by match-time capture");
+  }
+  lua_remove(L, fr);  /* remove first result (offset) */
+  return res;
+}
+
+/*
+** Add capture values returned by a dynamic capture to the capture list
+** 'base', nested inside a group capture. 'fd' indexes the first capture
+** value, 'n' is the number of values (at least 1).
+*/
+void lpeg_adddyncaptures(const char *s, Capture *base,
+        int n, int fd) {
+  int i;
+  /* Cgroup capture is already there */
+  assert(base[0].kind == Cgroup && base[0].siz == 0);
+  base[0].idx = 0;  /* make it an anonymous group */
+  for (i = 1; i <= n; i++) {  /* add runtime captures */
+    base[i].kind = Cruntime;
+    base[i].siz = 1;  /* mark it as closed */
+    base[i].idx = fd + i - 1;  /* stack index of capture value */
+    base[i].s = s;
+  }
+  base[i].kind = Cclose;  /* close group */
+  base[i].siz = 1;
+  base[i].s = s;
+}
