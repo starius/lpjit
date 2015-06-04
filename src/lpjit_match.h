@@ -6,4 +6,6 @@
 
 void lpjit_doubleCap(MatchState* mstate);
 
+int lpjit_removedyncap(MatchState* mstate);
+
 #endif

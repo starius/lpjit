@@ -15,6 +15,7 @@ typedef struct MatchState {
     long long int capsize;
     long long int ptop;
     long long int cap_top; // ASM->C
+    long long int cap_level; // ASM->C
     void* stack_pos; // ASM -> ASM
 } MatchState;
 

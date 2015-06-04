@@ -66,6 +66,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define m_state, r14
     |.define captop, r15
     |.define stack_size, rbx
+    |.define ndyncap, rbp
     |.define tmp1, r8
     |.define top_capture, tmp1
     |.define tmp1D, r8d
@@ -95,10 +96,12 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | push m_state
         | push captop
         | push stack_size
+        | push ndyncap
         | push int_result
     |.endmacro
     |.macro popCalleSave
         | pop int_result
+        | pop ndyncap
         | pop stack_size
         | pop captop
         | pop m_state
@@ -120,6 +123,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | mov send, mstate->subject_end
         | mov captop, 0
         | mov stack_size, 1 // 1st element is IGiveup
+        | mov ndyncap, 0
         | mov mstate->stack_pos, rsp
         | lea tmp1, [=>LABEL_GIVEUP]
         | push tmp1
@@ -179,18 +183,22 @@ static void IRet_c(CompilerState* Dst) {
 }
 
 static void putFail(CompilerState* Dst) {
-    //| mov tmp1, captop
     |9:
     decreaseStackSize(Dst);
     | pop scurrent
-    | pop captop
+    | pop tmp1 // captop
     | pop tmp2 // label
     | cmp scurrent, NULL
     | je <9
-    //| cmp ndyncap, 0
-    //| jle >8
-    // TODO call removedyncap
-    //|8:
+    | cmp ndyncap, 0
+    | jle >8
+    | mov mstate->cap_level, captop
+    | prepcall1 m_state
+    | call &lpjit_removedyncap
+    | sub ndyncap, int_result
+    | postcall 1
+    |8:
+    | mov captop, tmp1
     | jmp tmp2
 }
 

@@ -602,3 +602,20 @@ int lpeg_maxStackIndex(lua_State* L) {
     }
     return max_index;
 }
+
+/*
+** Remove dynamic captures from the Lua stack
+ * (called in case of failure)
+*/
+int lpeg_removedyncap(lua_State *L, Capture *capture,
+                      int level, int last) {
+    /* index of 1st cap. */
+    int id = finddyncap(capture + level, capture + last);
+    int top = lua_gettop(L);
+    if (id == 0) {
+        /* no dynamic captures? */
+        return 0;
+    }
+    lua_settop(L, id - 1);  /* remove captures */
+    return top - id + 1;  /* number of values removed */
+}
