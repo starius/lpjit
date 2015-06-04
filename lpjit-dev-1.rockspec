@@ -32,5 +32,6 @@ build = {
             defines = {"X64"},
         },
         ['lpjit.lpeg'] = 'src/lpeg.lua',
+        ['lpjit.re'] = 'src/re.lua',
     },
 }
