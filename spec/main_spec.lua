@@ -84,4 +84,13 @@ describe("lpjit", function()
         assert.equal(2, pattern2:match('45'))
         assert.equal(2, pattern2:match('54'))
     end)
+
+    it("throws lpeg pattern compilation errors", function()
+        local lpeg = require 'lpeg'
+        local lpjit = require 'lpjit'
+        local pattern = lpeg.V(1)
+        assert.has_error(function()
+            local pattern2 = lpjit.compile(pattern)
+        end)
+    end)
 end)

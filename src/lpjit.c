@@ -40,9 +40,18 @@ int lpjit_pushMatcher(lua_State* L) {
         lua_pushvalue(L, 1);
         lua_pushliteral(L, "");
         if (lua_pcall(L, 2, 0, 0)) {
-            // remove error message from stack
-            lua_pop(L, 1);
+            if (pattern->code) {
+                // compiled - discard the error
+                // probably this error was thrown by match(),
+                // not by compile()
+                lua_pop(L, 1);
+            } else {
+                // not compiled -- rethrow the error
+                return lua_error(L);
+            }
         }
+        luaL_argcheck(L, pattern->code, 1,
+                "Pattern is not compiled");
     }
     //
     Matcher* matcher = lua_newuserdata(L, sizeof(Matcher));
