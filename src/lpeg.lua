@@ -59,14 +59,18 @@ local function unwrapGrammar(obj)
     return obj2
 end
 
+local function unwrap(obj)
+    if type(obj) == 'table' and getmetatable(obj) ~= mt then
+        -- P { grammar }
+        return unwrapGrammar(obj)
+    else
+        return unwrapPattern(obj)
+    end
+end
+
 local function wrapGenerator(E)
     return function(obj, ...)
-        if type(obj) == 'table' and getmetatable(obj) ~= mt then
-            -- P { grammar }
-            obj = unwrapGrammar(obj)
-        else
-            obj = unwrapPattern(obj)
-        end
+        obj = unwrap(obj)
         -- eliminate tail nils, fix lpeg.R()
         local args = {obj, ...}
         return wrapPattern(E(unpack(args)))
@@ -81,8 +85,8 @@ end
 for _, binop in ipairs {'__unm', '__mul', '__add', '__sub',
         '__div', '__pow', '__len'} do
     mt[binop] = function(a, b)
-        a = unwrapPattern(a)
-        b = unwrapPattern(b)
+        a = unwrap(a)
+        b = unwrap(b)
         local am = getmetatable(a)
         local bm = getmetatable(b)
         local f = (am and am[binop]) or (bm and bm[binop])
