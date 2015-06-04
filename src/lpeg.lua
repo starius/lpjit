@@ -140,16 +140,12 @@ function lpjit_lpeg.type(obj)
     return nil
 end
 
-if lpeg.pcode then
-    function lpjit_lpeg.pcode(obj)
-        return lpeg.pcode(unwrapPattern(obj))
-    end
+function lpjit_lpeg.pcode(obj)
+    return lpeg.pcode(unwrapPattern(obj))
 end
 
-if lpeg.ptree then
-    function lpjit_lpeg.ptree(obj)
-        return lpeg.ptree(unwrapPattern(obj))
-    end
+function lpjit_lpeg.ptree(obj)
+    return lpeg.ptree(unwrapPattern(obj))
 end
 
 return lpjit_lpeg
