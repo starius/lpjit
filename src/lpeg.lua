@@ -115,7 +115,7 @@ function lpjit_lpeg.type(obj)
     if getmetatable(obj) == mt then
         return "pattern"
     end
-    if lpeg.type(obj) then
+    if lpeg.type(obj) == 'pattern' then
         return "pattern"
     end
     return nil
