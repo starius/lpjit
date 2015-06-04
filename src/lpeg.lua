@@ -9,19 +9,40 @@ local compiled = {}
 
 mt.__index = lpjit_lpeg
 
+local function rawWrap(pattern)
+    local obj = {value = pattern}
+    if newproxy and debug.setfenv then
+        -- Lua 5.1 doesn't support __len for tables
+        local obj2 = newproxy(true)
+        debug.setmetatable(obj2, mt)
+        debug.setfenv(obj2, obj)
+        assert(debug.getfenv(obj2) == obj)
+        return obj2
+    else
+        return setmetatable(obj, mt)
+    end
+end
+
+local function rawUnwrap(obj)
+    if type(obj) == 'table' then
+        return obj.value
+    else
+        return debug.getfenv(obj).value
+    end
+end
+
 local function wrapPattern(pattern)
     if getmetatable(pattern) == mt then
         -- already wrapped
         return pattern
     else
-        local obj = {value = pattern}
-        return setmetatable(obj, mt)
+        return rawWrap(pattern)
     end
 end
 
 local function unwrapPattern(obj)
     if getmetatable(obj) == mt then
-        return obj.value
+        return rawUnwrap(obj)
     else
         return obj
     end
