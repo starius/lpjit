@@ -31,5 +31,6 @@ build = {
             incdirs = {"$(LPEG_INCDIR)", '.'},
             defines = {"X64"},
         },
+        ['lpjit.lpeg'] = 'src/lpeg.lua',
     },
 }
