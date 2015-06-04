@@ -10,6 +10,11 @@
 #include "lptypes.h"
 #include "lpvm.h"
 
+/* initial size for call/backtrack stack */
+#if !defined(INITBACK)
+#define INITBACK 100
+#endif
+
 /*
 ** Get the initial position for the match, interpreting negative
 ** values from the end of the subject

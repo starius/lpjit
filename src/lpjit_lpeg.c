@@ -595,5 +595,10 @@ int lpeg_maxStackIndex(lua_State* L) {
     lua_getfield(L, LUA_REGISTRYINDEX, MAXSTACKIDX);
     int max_index = luaL_checkinteger(L, -1);
     lua_pop(L, 1);
+    if (max_index < INITBACK) {
+        // reproduce lpeg's behaviour (lpvm.c)
+        // max_stack_size = max(INITBACK, lpeg-maxstack)
+        max_index = INITBACK;
+    }
     return max_index;
 }
