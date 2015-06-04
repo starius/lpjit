@@ -318,7 +318,7 @@ int finddyncap (Capture *cap, Capture *last) {
 ** the call, including the initial Cgroup. (Captures to be added are
 ** on the Lua stack.)
 */
-int runtimecap (CapState *cs, Capture *close, const char *s, int *rem) {
+int lpeg_runtimecap (CapState *cs, Capture *close, const char *s, int *rem) {
   int n, id;
   lua_State *L = cs->L;
   int otop = lua_gettop(L);
