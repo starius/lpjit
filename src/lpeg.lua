@@ -50,7 +50,17 @@ end
 
 local function wrapGenerator(E)
     return function(obj, ...)
-        obj = unwrapPattern(obj)
+        if type(obj) == 'table' and getmetatable(obj) ~= mt then
+            -- P { grammar }
+            -- unwrap all values
+            local obj2 = {}
+            for k, v in pairs(obj) do
+                obj2[k] = unwrapPattern(v)
+            end
+            obj = obj2
+        else
+            obj = unwrapPattern(obj)
+        end
         return wrapPattern(E(obj, ...))
     end
 end
