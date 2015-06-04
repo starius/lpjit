@@ -67,10 +67,9 @@ describe("lpjit", function()
 
     it("matches balanced parenthesis (lpeg/test.lua)",
     function()
-        local lpeg = require 'lpeg'
         local m = require 'lpeg'
         local lpjit = require 'lpjit'
-        local pattern = lpeg.P {
+        local pattern = m.P {
             "(" * (((1 - m.S"()") + #m.P"(" * m.V(1))^0) * ")"
         }
         local pattern2 = lpjit.compile(pattern)
