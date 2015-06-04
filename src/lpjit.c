@@ -39,7 +39,10 @@ int lpjit_pushMatcher(lua_State* L) {
         lua_getfield(L, 1, "match");
         lua_pushvalue(L, 1);
         lua_pushliteral(L, "");
-        lua_call(L, 2, 0);
+        if (lua_pcall(L, 2, 0, 0)) {
+            // remove error message from stack
+            lua_pop(L, 1);
+        }
     }
     //
     Matcher* matcher = lua_newuserdata(L, sizeof(Matcher));
