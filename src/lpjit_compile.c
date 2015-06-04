@@ -74,6 +74,7 @@ static void lpjit_asmDefines(CompilerState* Dst) {
     |.define tmp2B, cl
     |.define tmp3, rdx
     |.define tmp3B, dl
+    |.define int_result, rax // Integer return values
     |.define rArg1, rdi
     |.define rArg2, rsi
     |.define rArg3, rdx
@@ -94,10 +95,10 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | push m_state
         | push captop
         | push stack_size
-        | push rax // Integer return values
+        | push int_result
     |.endmacro
     |.macro popCalleSave
-        | pop rax
+        | pop int_result
         | pop stack_size
         | pop captop
         | pop m_state
