@@ -42,4 +42,20 @@ describe("lpjit.lpeg", function()
         end)
         assert.falsy(m.match(p, "alo"))
     end)
+
+    it("doesn't crash if match-time capture returns bad pos",
+    function()
+        local m = require"lpjit.lpeg"
+        -- test for error messages
+        local function checkerr(msg, f, ...)
+            local st, err = pcall(f, ...)
+            assert(not st and m.match({
+                m.P(msg) + 1 * m.V(1)
+            }, err))
+        end
+        local s = "hi, this is a test"
+        checkerr("invalid position", m.match, function()
+            return 2^20
+        end, s)
+    end)
 end)

@@ -638,8 +638,11 @@ int lpeg_resdyncaptures(lua_State *L, int fr,
     res = curr;  /* keep current position */
   else {
     res = lua_tointeger(L, fr) - 1;  /* new position */
-    if (res < curr || res > limit)
-      luaL_error(L, "invalid position returned by match-time capture");
+    if (res < curr || res > limit) {
+      lua_pushstring(L, "invalid position returned by "
+              "match-time capture");
+      return lua_error(L);
+    }
   }
   lua_remove(L, fr);  /* remove first result (offset) */
   return res;
