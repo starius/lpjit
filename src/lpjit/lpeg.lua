@@ -59,7 +59,7 @@ local function unwrapGrammar(obj)
     return obj2
 end
 
-local function unwrap(obj)
+function unwrap(obj)
     if type(obj) == 'table' and getmetatable(obj) ~= mt then
         -- P { grammar }
         return unwrapGrammar(obj)
@@ -68,10 +68,11 @@ local function unwrap(obj)
     end
 end
 
-local function wrapGenerator(E)
+local function wrapGenerator(E, unwrap_func)
+    unwrap_func = unwrap_func or unwrap
     return function(...)
         local args = {...}
-        local first = unwrap(args[1])
+        local first = unwrap_func(args[1])
         local nargs = select('#', ...)
         if nargs == 0 then
             return wrapPattern(E())
@@ -84,9 +85,10 @@ local function wrapGenerator(E)
 end
 
 for _, E in ipairs {'B', 'S', 'R', 'Cf', 'Cs', 'Cmt', 'Carg',
-        'Ct', 'P', 'Cc', 'Cp', 'Cg', 'Cb', 'V', 'C'} do
+        'Ct', 'P', 'Cc', 'Cp', 'Cg', 'Cb', 'C'} do
     lpjit_lpeg[E] = wrapGenerator(lpeg[E])
 end
+lpjit_lpeg.V = wrapGenerator(lpeg.V, unwrapPattern)
 
 local lpeg_mt = getmetatable(lpeg.P(1))
 

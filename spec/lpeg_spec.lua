@@ -58,4 +58,14 @@ describe("lpjit.lpeg", function()
             return 2^20
         end, s)
     end)
+
+    it("works with grammars with 'strange values'", function()
+        local m = require"lpjit.lpeg"
+        local p = m.P {
+            "print",
+            print = m.V(print),
+            [print] = m.V(_G),
+            [_G] = m.P"a",
+        }
+    end)
 end)
