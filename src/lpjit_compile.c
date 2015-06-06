@@ -194,9 +194,13 @@ static void putFail(CompilerState* Dst) {
     | jle >8
     | mov mstate->cap_level, tmp1
     | mov mstate->cap_top, captop
+    | push tmp1
+    | push tmp2
     | prepcall1 m_state
     | call &lpjit_removedyncap
     | postcall 1
+    | pop tmp2
+    | pop tmp1
     | sub ndyncap, int_result
     |8:
     | mov captop, tmp1

@@ -68,4 +68,36 @@ describe("lpjit.lpeg", function()
             [_G] = m.P"a",
         }
     end)
+
+    it("doesn't crash if fail after closeruntime", function()
+        local m = require"lpjit.lpeg"
+        local function id(s, i, ...)
+            return true, ...
+        end
+        local p = m.Cmt(m.S'abc' / {a = 'x', c = 'y'}, id)
+        local p2 = (p + m.R'09'^1 / string.char + m.P(1))^0
+        local p3 = m.Cmt(m.Cs(p2), id)
+        assert.equal("xyb\98+\68y", p3:match("acb98+68c"))
+    end)
+
+    it("doesn't crash if fail after closeruntime (min)",
+    function()
+        local m = require"lpjit.lpeg"
+        local function id(s, i, ...)
+            return true, ...
+        end
+        local p = m.Cmt(m.S'abc', id)
+        local p2 = (p + m.R'09'^1 + m.P(1))^0
+        assert(p2:match("acb98+68c"))
+    end)
+
+    it("doesn't crash if fail after closeruntime (min min)",
+    function()
+        local m = require"lpjit.lpeg"
+        local function id(s, i, ...)
+            return i, ...
+        end
+        local p = m.Cmt(m.P'a', id) * m.P'b'
+        p:match("ac")
+    end)
 end)
