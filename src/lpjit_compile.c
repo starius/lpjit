@@ -495,6 +495,9 @@ void lpjit_compileInstruction(CompilerState* Dst) {
 static void lpjit_compileAll(CompilerState* Dst) {
     |.section code
     |.code
+    |->lpjit_error:
+    | mov scurrent, LPJIT_THROW
+    | jmp =>LABEL_EPILOGUE
     |->lpjit_main:
     | prologue
     int codesize = Dst->pattern->codesize;
@@ -542,4 +545,5 @@ void lpjit_compile(lua_State* L,
     dasm_free(Dst);
     matcher->d = 0; // prevent double-free in matcher's __gc
     matcher->impl = labels[lbl_lpjit_main];
+    matcher->error = labels[lbl_lpjit_error];
 }

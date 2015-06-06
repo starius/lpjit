@@ -18,6 +18,8 @@ typedef struct MatchState {
     long long int cap_level; // ASM->C
     long long int n_dyncap; // ASM<->C
     void* stack_pos; // ASM -> ASM
+
+    void(*error)(MatchState*);
 } MatchState;
 
 typedef struct Matcher Matcher;

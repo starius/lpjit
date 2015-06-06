@@ -111,6 +111,7 @@ int lua_lpjit_match(lua_State* L) {
     /* initialize penvidx */
     lua_getfenv(L, 1);
     MatchState mstate;
+    mstate.error = matcher->error;
     mstate.subject_begin = s;
     mstate.subject_current = s + i;
     mstate.subject_end = s + l;
@@ -127,6 +128,10 @@ int lua_lpjit_match(lua_State* L) {
     }
     if (r == LPJIT_STACKOVERFLOW) {
         return luaL_error(L, "too many pending calls/choices");
+    }
+    if (r == LPJIT_THROW) {
+        // error must be on Lua stack
+        return lua_error(L);
     }
     return lpeg_getcaptures(L, s, r, ptop);
 }

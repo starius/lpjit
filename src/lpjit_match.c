@@ -4,6 +4,7 @@
 
 void lpjit_doubleCap(MatchState* mstate) {
     mstate->capture = lpeg_doubleCap(
+            mstate,
             mstate->L,
             mstate->capture,
             mstate->cap_top,
@@ -13,6 +14,7 @@ void lpjit_doubleCap(MatchState* mstate) {
 
 int lpjit_removedyncap(MatchState* mstate) {
     return lpeg_removedyncap(
+            mstate,
             mstate->L,
             mstate->capture,
             mstate->cap_level,
@@ -31,11 +33,20 @@ int lpjit_ICloseRunTime(MatchState* mstate) {
     cs.ptop = mstate->ptop;
     Capture* top_capture = mstate->capture + mstate->cap_top;
     int rem;
-    int n = lpeg_runtimecap(&cs, top_capture,
-            mstate->subject_current, &rem);
+    int n = lpeg_runtimecap(
+            mstate,
+            &cs,
+            top_capture,
+            mstate->subject_current,
+            &rem);
     mstate->cap_top -= n;
     fr -= rem;
-    int res = lpeg_resdyncaptures(mstate->L, fr, s - o, e - o);
+    int res = lpeg_resdyncaptures(
+            mstate,
+            mstate->L,
+            fr,
+            s - o,
+            e - o);
     if (res == -1) {
         return LPJIT_FAIL;
     }
@@ -49,7 +60,7 @@ int lpjit_ICloseRunTime(MatchState* mstate) {
         }
         Capture* top_capture2 = mstate->capture +
                 mstate->cap_top - n - 2;
-        lpeg_adddyncaptures(s, top_capture2, n, fr);
+        lpeg_adddyncaptures(mstate, s, top_capture2, n, fr);
     }
     return 0; // Ok
 }

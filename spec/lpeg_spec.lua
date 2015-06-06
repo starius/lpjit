@@ -43,7 +43,7 @@ describe("lpjit.lpeg", function()
         assert.falsy(m.match(p, "alo"))
     end)
 
-    it("doesn't crash if match-time capture returns bad pos",
+    it("doesn't crash if match-time capture returns #bad pos",
     function()
         local m = require"lpjit.lpeg"
         -- test for error messages
@@ -99,5 +99,16 @@ describe("lpjit.lpeg", function()
         end
         local p = m.Cmt(m.P'a', id) * m.P'b'
         p:match("ac")
+    end)
+
+    it("doesn't panic (#luajit, bad runtime capture position)",
+    function()
+        local m = require "lpjit.lpeg"
+        local function f()
+            return 2^20
+        end
+        assert.has_error(function()
+            m.match(f, "hi, this is a test")
+        end)
     end)
 end)
