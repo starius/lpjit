@@ -493,6 +493,10 @@ void lpjit_compileInstruction(CompilerState* Dst) {
 }
 
 static void lpjit_compileAll(CompilerState* Dst) {
+    |.section code
+    |.code
+    |->lpjit_main:
+    | prologue
     int codesize = Dst->pattern->codesize;
     Instruction* begin = Dst->pattern->code;
     Instruction* end = begin + codesize;
@@ -518,7 +522,6 @@ void lpjit_compile(lua_State* L,
     CompilerState cstate;
     CompilerState* Dst = &cstate;
     lpjit_compilerInit(Dst, L, pattern);
-    |.section code
     dasm_init(Dst, DASM_MAXSECTION);
     // copy d to matcher. It will be freed in matcher's __gc
     matcher->d = cstate.d;
@@ -530,10 +533,6 @@ void lpjit_compile(lua_State* L,
     // preserve labels for all instructions
     dasm_growpc(Dst, pattern->codesize + LABELS_NUM);
     lpjit_asmDefines(Dst);
-    // TODO
-    |.code
-    |->lpjit_main:
-    | prologue
     lpjit_compileAll(Dst);
     //
     dasm_link(Dst, &matcher->buffer_size);
