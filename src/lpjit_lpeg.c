@@ -176,7 +176,8 @@ static Capture *findback (CapState *cs, Capture *cap) {
       else lua_pop(L, 1);  /* remove group name */
     }
   }
-  luaL_error(L, "back reference '%s' not found", lua_tostring(L, -1));
+  lua_pushfstring(L, "back reference '%s' not found", lua_tostring(L, -1));
+  lua_error(L);
   return NULL;  /* to avoid warnings */
 }
 
@@ -249,8 +250,10 @@ static int foldcap (CapState *cs) {
   int idx = cs->cap->idx;
   if (isfullcap(cs->cap++) ||  /* no nested captures? */
       isclosecap(cs->cap) ||  /* no nested captures (large subject)? */
-      (n = pushcapture(cs)) == 0)  /* nested captures with no values? */
-    return luaL_error(L, "no initial value for fold capture");
+      (n = pushcapture(cs)) == 0) { /* nested captures with no values? */
+    lua_pushstring(L, "no initial value for fold capture");
+    return lua_error(L);
+  }
   if (n > 1)
     lua_pop(L, n - 1);  /* leave only one result for accumulator */
   while (!isclosecap(cs->cap)) {
@@ -288,9 +291,10 @@ static int numcap (CapState *cs) {
   }
   else {
     int n = pushnestedvalues(cs, 0);
-    if (n < idx)  /* invalid index? */
-      return luaL_error(cs->L, "no capture '%d'", idx);
-    else {
+    if (n < idx) {  /* invalid index? */
+      lua_pushfstring(cs->L, "no capture '%d'", idx);
+      return lua_error(cs->L);
+    } else {
       lua_pushvalue(cs->L, -(n - idx + 1));  /* get selected capture */
       lua_replace(cs->L, -(n + 1));  /* put it in place of 1st capture */
       lua_pop(cs->L, n - 1);  /* remove other captures */
@@ -418,15 +422,19 @@ static void stringcap (luaL_Buffer *b, CapState *cs) {
       luaL_addchar(b, fmt[i]);  /* add to buffer */
     else {
       int l = fmt[i] - '0';  /* capture index */
-      if (l > n)
-        luaL_error(cs->L, "invalid capture index (%d)", l);
-      else if (cps[l].isstring)
+      if (l > n) {
+        lua_pushfstring(cs->L, "invalid capture index (%d)", l);
+        lua_error(cs->L);
+      } else if (cps[l].isstring)
         luaL_addlstring(b, cps[l].u.s.s, cps[l].u.s.e - cps[l].u.s.s);
       else {
         Capture *curr = cs->cap;
         cs->cap = cps[l].u.cp;  /* go back to evaluate that nested capture */
-        if (!addonestring(b, cs, "capture"))
-          luaL_error(cs->L, "no values in capture index %d", l);
+        if (!addonestring(b, cs, "capture")) {
+          lua_pushfstring(cs->L,
+                  "no values in capture index %d", l);
+          lua_error(cs->L);
+        }
         cs->cap = curr;  /* continue from where it stopped */
       }
     }
@@ -474,8 +482,11 @@ static int addonestring (luaL_Buffer *b, CapState *cs, const char *what) {
       int n = pushcapture(cs);
       if (n > 0) {
         if (n > 1) lua_pop(L, n - 1);  /* only one result */
-        if (!lua_isstring(L, -1))
-          luaL_error(L, "invalid %s value (a %s)", what, luaL_typename(L, -1));
+        if (!lua_isstring(L, -1)) {
+          lua_pushfstring(L, "invalid %s value (a %s)",
+                  what, luaL_typename(L, -1));
+          return lua_error(L);
+        }
         luaL_addvalue(b);
       }
       return n;
@@ -504,8 +515,11 @@ static int pushcapture (CapState *cs) {
     }
     case Carg: {
       int arg = (cs->cap++)->idx;
-      if (arg + FIXEDARGS > cs->ptop)
-        return luaL_error(L, "reference to absent extra argument #%d", arg);
+      if (arg + FIXEDARGS > cs->ptop) {
+        lua_pushfstring(L,
+                "reference to absent extra argument #%d", arg);
+        return lua_error(L);
+      }
       lua_pushvalue(L, arg + FIXEDARGS);
       return 1;
     }
@@ -583,8 +597,11 @@ int lpeg_getcaptures (lua_State *L, const char *s, const char *r, int ptop) {
 Capture* lpeg_doubleCap(lua_State* L, Capture* cap,
         int captop, int ptop) {
   Capture *newc;
-  if (captop >= INT_MAX/((int)sizeof(Capture) * 2))
-    luaL_error(L, "too many captures");
+  if (captop >= INT_MAX/((int)sizeof(Capture) * 2)) {
+    lua_pushstring(L, "too many captures");
+    lua_error(L);
+    return NULL;  /* to avoid warnings */
+  }
   newc = (Capture *)lua_newuserdata(L, captop * 2 * sizeof(Capture));
   memcpy(newc, cap, captop * sizeof(Capture));
   lua_replace(L, caplistidx(ptop));
