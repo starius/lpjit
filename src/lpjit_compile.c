@@ -186,13 +186,14 @@ static void putFail(CompilerState* Dst) {
     |9:
     decreaseStackSize(Dst);
     | pop scurrent
-    | pop tmp1 // captop
+    | pop tmp1 // caplevel
     | pop tmp2 // label
     | cmp scurrent, NULL
     | je <9
     | cmp ndyncap, 0
     | jle >8
-    | mov mstate->cap_level, captop
+    | mov mstate->cap_level, tmp1
+    | mov mstate->cap_top, captop
     | prepcall1 m_state
     | call &lpjit_removedyncap
     | postcall 1
