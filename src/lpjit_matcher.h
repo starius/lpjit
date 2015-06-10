@@ -6,9 +6,10 @@
 
 typedef void(*MatchStateMethod)(MatchState*);
 
-#define LPJIT_GIVEUP ((const char*)0)
-#define LPJIT_STACKOVERFLOW ((const char*)1)
-#define LPJIT_THROW ((const char*)2)
+#define LPJIT_END 0
+#define LPJIT_GIVEUP 1
+#define LPJIT_STACKOVERFLOW 2
+#define LPJIT_THROW 3
 
 #define LPJIT_FAIL (1)
 

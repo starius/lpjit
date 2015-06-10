@@ -166,11 +166,12 @@ static void IEnd_c(CompilerState* Dst) {
     loadTopCapture(Dst);
     | mov byte topcapture->kind, Cclose
     | mov aword topcapture->s, NULL
+    | mov dword mstate->result, LPJIT_END
     | jmp =>LABEL_EPILOGUE
 }
 
 static void IGiveup_c(CompilerState* Dst) {
-    | mov scurrent, LPJIT_GIVEUP
+    | mov dword mstate->result, LPJIT_GIVEUP
     | jmp =>LABEL_EPILOGUE
 }
 
@@ -496,7 +497,7 @@ static void lpjit_compileAll(CompilerState* Dst) {
     |.section code
     |.code
     |->lpjit_error:
-    | mov scurrent, LPJIT_THROW
+    | mov dword mstate->result, LPJIT_THROW
     | jmp =>LABEL_EPILOGUE
     |->lpjit_main:
     | prologue
@@ -512,7 +513,7 @@ static void lpjit_compileAll(CompilerState* Dst) {
     | =>LABEL_GIVEUP:
     IGiveup_c(Dst);
     | =>LABEL_STACKOVERFLOW:
-    | mov scurrent, LPJIT_STACKOVERFLOW
+    | mov dword mstate->result, LPJIT_STACKOVERFLOW
     | =>LABEL_EPILOGUE:
     | epilogue
 }

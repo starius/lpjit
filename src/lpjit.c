@@ -121,18 +121,18 @@ int lua_lpjit_match(lua_State* L) {
     mstate.ptop = ptop;
     //mstate.cap_top = 0; // is not used by ASM
     lpjit_match(matcher, &mstate);
-    const char* r = mstate.subject_current;
-    if (r == LPJIT_GIVEUP) {
+    if (mstate.result == LPJIT_GIVEUP) {
         lua_pushnil(L);
         return 1;
     }
-    if (r == LPJIT_STACKOVERFLOW) {
+    if (mstate.result == LPJIT_STACKOVERFLOW) {
         return luaL_error(L, "too many pending calls/choices");
     }
-    if (r == LPJIT_THROW) {
+    if (mstate.result == LPJIT_THROW) {
         // error must be on Lua stack
         return lua_error(L);
     }
+    const char* r = mstate.subject_current;
     return lpeg_getcaptures(L, s, r, ptop);
 }
 
