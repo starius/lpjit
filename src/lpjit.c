@@ -38,7 +38,7 @@ int lpjit_pushMatcher(lua_State* L) {
         // Pattern is not compiled, call match with ''
         lua_getfield(L, 1, "match");
         lua_pushvalue(L, 1);
-        lua_pushliteral(L, "");
+        lua_pushnil(L); // instead of subject; prevent matching
         if (lua_pcall(L, 2, 0, 0)) {
             if (pattern->code) {
                 // compiled - discard the error

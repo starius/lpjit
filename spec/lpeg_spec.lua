@@ -122,4 +122,16 @@ describe("lpjit.lpeg", function()
             m.match(f, "hi, this is a test")
         end)
     end)
+
+    it("doesn't call runtime captures when compiling",
+    function()
+        local m = require 'lpjit.lpeg'
+        local touch = 0
+        local f = m.P(function()
+            touch = touch + 1
+            return true
+        end)
+        assert.equal(nil, m.match(f * false + 'b', 'a'))
+        assert.equal(1, touch)
+    end)
 end)
