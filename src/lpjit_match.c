@@ -21,7 +21,7 @@ int lpjit_removedyncap(MatchState* mstate) {
             mstate->cap_top);
 }
 
-int lpjit_ICloseRunTime(MatchState* mstate) {
+void lpjit_ICloseRunTime(MatchState* mstate) {
     const char* o = mstate->subject_begin;
     const char* s = mstate->subject_current;
     const char* e = mstate->subject_end;
@@ -48,7 +48,8 @@ int lpjit_ICloseRunTime(MatchState* mstate) {
             s - o,
             e - o);
     if (res == -1) {
-        return LPJIT_FAIL;
+        mstate->runtime_result = LPJIT_FAIL;
+        return;
     }
     mstate->subject_current = o + res;
     n = lua_gettop(mstate->L) - fr + 1;
@@ -62,5 +63,6 @@ int lpjit_ICloseRunTime(MatchState* mstate) {
                 mstate->cap_top - n - 2;
         lpeg_adddyncaptures(mstate, s, top_capture2, n, fr);
     }
-    return 0; // Ok
+    mstate->runtime_result = 0; // Ok
+    return;
 }

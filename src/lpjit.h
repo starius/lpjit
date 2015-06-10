@@ -18,6 +18,7 @@ typedef struct MatchState {
     long long int cap_level; // ASM->C
     long long int n_dyncap; // ASM<->C
     void* stack_pos; // ASM -> ASM
+    long long int runtime_result;
     int result; // ASM->C
 
     void(*error)(MatchState*);

@@ -406,7 +406,7 @@ static void ICloseRunTime_c(CompilerState* Dst) {
     | call &lpjit_ICloseRunTime
     | postcall 1
     | mov captop, mstate->cap_top
-    | cmp int_result, LPJIT_FAIL
+    | cmp qword mstate->runtime_result, LPJIT_FAIL
     | jne, >7
     putFail(Dst);
     |7:

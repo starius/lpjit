@@ -8,7 +8,6 @@ void lpjit_doubleCap(MatchState* mstate);
 
 int lpjit_removedyncap(MatchState* mstate);
 
-// if returns LPJIT_FAIL, goto fail
-int lpjit_ICloseRunTime(MatchState* mstate);
+void lpjit_ICloseRunTime(MatchState* mstate);
 
 #endif
