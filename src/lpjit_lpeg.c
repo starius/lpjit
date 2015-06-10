@@ -8,7 +8,7 @@
 #include "lpjit.h"
 
 #define lpjit_error(mstate) \
-    if (mstate->error) { \
+    if (mstate->error && mstate->inside) { \
         mstate->error(mstate); \
     } else { \
         lua_error(mstate->L); \

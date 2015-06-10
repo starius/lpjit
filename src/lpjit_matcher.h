@@ -10,6 +10,7 @@ typedef void(*MatchStateMethod)(MatchState*);
 #define LPJIT_GIVEUP 1
 #define LPJIT_STACKOVERFLOW 2
 #define LPJIT_THROW 3
+#define LPJIT_RUNTIME 4
 
 #define LPJIT_FAIL (1)
 
@@ -20,6 +21,8 @@ typedef struct Matcher {
     MatchStateMethod error; // doesn't use its argument
     dasm_State* d;
     int pattern_ref;
+    int has_runtime;
+    int max_stack_size;
 } Matcher;
 
 #endif

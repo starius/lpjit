@@ -121,6 +121,15 @@ static void lpjit_asmDefines(CompilerState* Dst) {
         | mov m_state, rArg1
         | mov scurrent, mstate->subject_current
         | mov send, mstate->subject_end
+        | cmp qword mstate->return_address, NULL
+        | je >4
+        | mov captop, mstate->cap_top
+        | mov stack_size, mstate->stacksize
+        | mov ndyncap, mstate->n_dyncap
+        // jump into callRunTime
+        | mov tmp1, mstate->return_address
+        | jmp tmp1
+        |4:
         | mov captop, 0
         | mov stack_size, 1 // 1st element is IGiveup
         | mov ndyncap, 0
@@ -398,13 +407,58 @@ static void putPushCapture(CompilerState* Dst) {
     checkCaptop(Dst);
 }
 
+static int lpjit_newLabel(CompilerState* Dst) {
+    Dst->nlabels += 1;
+    dasm_growpc(Dst, Dst->nlabels);
+    return Dst->nlabels - 1;
+}
+
+static void callRunTime(CompilerState* Dst) {
+    int return_label = lpjit_newLabel(Dst);
+    // backup stack
+    | mov mstate->stacksize, stack_size
+    | lea tmp1, [=>return_label]
+    | mov mstate->return_address, tmp1
+    | mov tmp1, mstate->stack_backup
+    | mov tmp2, stack_size
+    |1:
+    | cmp tmp2, 0
+    | jle >2
+    | pop qword [tmp1]
+    | pop qword [tmp1 + sizeof(void*)]
+    | pop qword [tmp1 + 2 * sizeof(void*)]
+    | add tmp1, 3 * sizeof(void*)
+    | dec tmp2
+    | jmp <1
+    |2:
+    // call lpjit_ICloseRunTime
+    | mov dword mstate->result, LPJIT_RUNTIME
+    | jmp =>LABEL_EPILOGUE
+    // restore
+    |=>return_label:
+    | mov stack_size, mstate->stacksize
+    | imul tmp1, stack_size,  3 * sizeof(void*)
+    | add tmp1, mstate->stack_backup
+    | sub tmp1, sizeof(void*)
+    | mov tmp2, stack_size
+    |1:
+    | cmp tmp2, 0
+    | jle >2
+    | push qword [tmp1]
+    | push qword [tmp1 - sizeof(void*)]
+    | push qword [tmp1 - 2 * sizeof(void*)]
+    | sub tmp1, 3 * sizeof(void*)
+    | dec tmp2
+    | jmp <1
+    |2:
+}
+
 static void ICloseRunTime_c(CompilerState* Dst) {
+    Dst->has_runtime = 1;
     | mov mstate->cap_top, captop
     | mov mstate->subject_current, scurrent
     | mov mstate->n_dyncap, ndyncap
-    | prepcall1 m_state
-    | call &lpjit_ICloseRunTime
-    | postcall 1
+    callRunTime(Dst);
     | mov captop, mstate->cap_top
     | cmp qword mstate->runtime_result, LPJIT_FAIL
     | jne, >7
@@ -535,7 +589,8 @@ void lpjit_compile(lua_State* L,
     |.actionlist lpjit_actions
     dasm_setup(Dst, lpjit_actions);
     // preserve labels for all instructions
-    dasm_growpc(Dst, pattern->codesize + LABELS_NUM);
+    Dst->nlabels = pattern->codesize + LABELS_NUM;
+    dasm_growpc(Dst, Dst->nlabels);
     lpjit_asmDefines(Dst);
     lpjit_compileAll(Dst);
     //
@@ -547,4 +602,6 @@ void lpjit_compile(lua_State* L,
     matcher->d = 0; // prevent double-free in matcher's __gc
     matcher->impl = labels[lbl_lpjit_main];
     matcher->error = labels[lbl_lpjit_error];
+    matcher->has_runtime = Dst->has_runtime;
+    matcher->max_stack_size = Dst->max_stack_size;
 }

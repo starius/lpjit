@@ -10,6 +10,8 @@ typedef struct CompilerState {
     Pattern* pattern;
     Instruction* instruction;
     long long int max_stack_size;
+    int nlabels;
+    int has_runtime;
 } CompilerState;
 
 void lpjit_compilerInit(CompilerState* cstate,

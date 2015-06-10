@@ -84,10 +84,12 @@ Matcher* lpjit_checkMatcher(lua_State* L, int index) {
 }
 
 void lpjit_match(const Matcher* matcher, MatchState* mstate) {
+    mstate->inside = 1;
     lua_State* L = mstate->L;
     luaL_argcheck(L, matcher->buffer != 0, 1, "Bad matcher");
     luaL_argcheck(L, matcher->impl != 0, 1, "Bad matcher");
     matcher->impl(mstate);
+    mstate->inside = 0;
     // result is in mstate->subject_current
 }
 
@@ -102,6 +104,12 @@ int lua_lpjit_match(lua_State* L) {
     size_t l;
     const char *s = luaL_checklstring(L, 2, &l);
     size_t i = lpeg_initposition(L, l);
+    void* stack_backup = NULL;
+    if (matcher->has_runtime) {
+        int max_stack_size = matcher->max_stack_size;
+        int bytes = LPJIT_STACKFRAME_SIZE * max_stack_size;
+        stack_backup = lua_newuserdata(L, bytes);
+    }
     int ptop = lua_gettop(L);
     /* initialize subscache */
     lua_pushnil(L);
@@ -120,7 +128,16 @@ int lua_lpjit_match(lua_State* L) {
     mstate.capsize = INITCAPSIZE;
     mstate.ptop = ptop;
     //mstate.cap_top = 0; // is not used by ASM
-    lpjit_match(matcher, &mstate);
+    mstate.return_address = NULL;
+    mstate.stack_backup = stack_backup;
+    mstate.inside = 0;
+    while (1) {
+        lpjit_match(matcher, &mstate);
+        if (mstate.result != LPJIT_RUNTIME) {
+            break;
+        }
+        lpjit_ICloseRunTime(&mstate);
+    }
     if (mstate.result == LPJIT_GIVEUP) {
         lua_pushnil(L);
         return 1;

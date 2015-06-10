@@ -6,6 +6,8 @@
 
 #include "lpjit_lpeg.h"
 
+#define LPJIT_STACKFRAME_SIZE 3 * sizeof(void*)
+
 typedef struct MatchState {
     const char* subject_begin; // o
     const char* subject_current; // s, start position, ASM<->C
@@ -17,9 +19,13 @@ typedef struct MatchState {
     long long int cap_top; // ASM<->C
     long long int cap_level; // ASM->C
     long long int n_dyncap; // ASM<->C
+    long long int stacksize; // ASM
     void* stack_pos; // ASM -> ASM
+    void* return_address; // ASM
+    void* stack_backup;
     long long int runtime_result;
     int result; // ASM->C
+    int inside; // in JITed code
 
     void(*error)(MatchState*);
 } MatchState;

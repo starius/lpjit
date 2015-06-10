@@ -80,6 +80,17 @@ describe("lpjit.lpeg", function()
         assert.equal("xyb\98+\68y", p3:match("acb98+68c"))
     end)
 
+    it("doesn't crash if runtime capture throws", function()
+        local lpeg = require 'lpjit.lpeg'
+        pcall(function()
+            lpeg.match(function()
+                pcall(function()
+                    error 'test'
+                end)
+            end, '')
+        end)
+    end)
+
     it("doesn't crash if fail after closeruntime (min)",
     function()
         local m = require"lpjit.lpeg"

@@ -8,6 +8,7 @@ void lpjit_compilerInit(CompilerState* cstate,
     cstate->pattern = pattern;
     cstate->instruction = pattern->code;
     cstate->max_stack_size = lpeg_maxStackIndex(L);
+    cstate->has_runtime = 0;
 }
 
 int lpjit_offsetOf(CompilerState* cstate,
