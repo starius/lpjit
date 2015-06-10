@@ -8,7 +8,7 @@ local unpack = unpack or table.unpack
 local mt = {}
 
 local wrapped = setmetatable({}, {__mode='k'})
-local compiled = {}
+local compiled = setmetatable({}, {__mode='k'})
 
 mt.__index = lpjit_lpeg
 
