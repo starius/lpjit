@@ -7,6 +7,7 @@ local unpack = unpack or table.unpack
 
 local mt = {}
 
+local wrapped = setmetatable({}, {__mode='k'})
 local compiled = {}
 
 mt.__index = lpjit_lpeg
@@ -25,6 +26,15 @@ local function rawWrap(pattern)
     end
 end
 
+local function cachedRawWrap(pattern)
+    if wrapped[pattern] then
+        return wrapped[pattern]
+    end
+    local obj = rawWrap(pattern)
+    wrapped[pattern] = obj
+    return obj
+end
+
 local function rawUnwrap(obj)
     if type(obj) == 'table' then
         return obj.value
@@ -38,7 +48,7 @@ local function wrapPattern(pattern)
         -- already wrapped
         return pattern
     else
-        return rawWrap(pattern)
+        return cachedRawWrap(pattern)
     end
 end
 

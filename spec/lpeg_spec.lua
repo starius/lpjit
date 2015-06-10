@@ -134,4 +134,11 @@ describe("lpjit.lpeg", function()
         assert.equal(nil, m.match(f * false + 'b', 'a'))
         assert.equal(1, touch)
     end)
+
+    it("caches wrapped values", function()
+        local m = require 'lpjit.lpeg'
+        local p = m.P 'test'
+        local p1 = m.P(p)
+        assert.equal(p1, p)
+    end)
 end)
