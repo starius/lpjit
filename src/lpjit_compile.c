@@ -38,7 +38,8 @@
 #define LABEL_GIVEUP Dst->pattern->codesize
 #define LABEL_STACKOVERFLOW Dst->pattern->codesize + 1
 #define LABEL_EPILOGUE Dst->pattern->codesize + 2
-#define LABELS_NUM 3
+#define LABEL_FAIL Dst->pattern->codesize + 3
+#define LABELS_NUM 4
 
 #define getoffset(p) (((p) + 1)->offset)
 
@@ -193,6 +194,11 @@ static void IRet_c(CompilerState* Dst) {
 }
 
 static void putFail(CompilerState* Dst) {
+    | jmp =>LABEL_FAIL
+}
+
+
+static void putFailImpl(CompilerState* Dst) {
     |9:
     decreaseStackSize(Dst);
     | pop scurrent
@@ -570,6 +576,8 @@ static void lpjit_compileAll(CompilerState* Dst) {
     | mov dword mstate->result, LPJIT_STACKOVERFLOW
     | =>LABEL_EPILOGUE:
     | epilogue
+    | =>LABEL_FAIL:
+    putFailImpl(Dst);
 }
 
 void lpjit_compile(lua_State* L,
