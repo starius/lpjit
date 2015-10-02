@@ -11,10 +11,11 @@ describe("lpjit", function()
         local pattern = lpeg.P {
             "(" * (lpeg.V(1))^0 * ")"
         }
-        lpeg.setmaxstack(200) -- must be > INITBACK = 100
+        local INITBACK = 100 -- depends on lpeg setting
+        lpeg.setmaxstack(INITBACK + 100) -- must be > INITBACK
         local lpeg_max
         local lpjit_max
-        for i = 1, 300 do
+        for i = 1, INITBACK + 100 do
             -- generate strings like (((())))
             local text = ('('):rep(i) .. (')'):rep(i)
             -- lpjit.compile depends on lpeg.setmaxstack
