@@ -12,7 +12,7 @@
 
 /* initial size for call/backtrack stack */
 #if !defined(INITBACK)
-#define INITBACK 100
+#define INITBACK 400
 #endif
 
 typedef struct MatchState MatchState;

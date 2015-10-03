@@ -11,7 +11,7 @@ describe("lpjit", function()
         local pattern = lpeg.P {
             "(" * (lpeg.V(1))^0 * ")"
         }
-        local INITBACK = 100 -- depends on lpeg setting
+        local INITBACK = 400 -- depends on lpeg setting
         lpeg.setmaxstack(INITBACK + 100) -- must be > INITBACK
         local lpeg_max
         local lpjit_max

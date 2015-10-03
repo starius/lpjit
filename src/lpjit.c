@@ -143,7 +143,9 @@ int lua_lpjit_match(lua_State* L) {
         return 1;
     }
     if (mstate.result == LPJIT_STACKOVERFLOW) {
-        return luaL_error(L, "too many pending calls/choices");
+        int max_stack_size = matcher->max_stack_size;
+        return luaL_error(L, "backtrack stack overflow "
+                "(current limit is %d)", max_stack_size);
     }
     if (mstate.result == LPJIT_THROW) {
         // error must be on Lua stack
