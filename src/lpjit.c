@@ -59,8 +59,8 @@ int lpjit_pushMatcher(lua_State* L) {
     // Matcher depends on Pattern (bitsets for ISet etc)
     lua_pushvalue(L, 1); // pattern
     matcher->pattern_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_getfenv(L, 1); // ktable
-    lua_setfenv(L, matcher_index); // ktable
+    lua_getuservalue(L, 1); // ktable
+    lua_setuservalue(L, matcher_index); // ktable
     //
     matcher->buffer = 0;
     matcher->impl = 0;
@@ -117,7 +117,7 @@ int lua_lpjit_match(lua_State* L) {
     /* initialize caplistidx */
     lua_pushlightuserdata(L, capture);
     /* initialize penvidx */
-    lua_getfenv(L, 1);
+    lua_getuservalue(L, 1);
     MatchState mstate;
     mstate.error = matcher->error;
     mstate.subject_begin = s;
