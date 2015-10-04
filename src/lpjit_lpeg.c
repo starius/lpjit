@@ -185,7 +185,7 @@ static Capture* findback(MatchState* mstate, CapState* cs,
       continue; /* opening an enclosing capture: skip and get previous */
     if (captype(cap) == Cgroup) {
       getfromktable(cs, cap->idx);  /* get group name */
-      if (lua_equal(L, -2, -1)) {  /* right group? */
+      if (lp_equal(L, -2, -1)) {  /* right group? */
         lua_pop(L, 2);  /* remove reference name and group name */
         return cap;
       }
